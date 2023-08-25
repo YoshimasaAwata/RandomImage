@@ -1,24 +1,21 @@
 from enum import Enum, auto
-
 import numpy as np
-from matplotlib import pyplot as plt
 from PIL import Image
 
 
 class Color(Enum):
     """2D画像をカラーで作成するかモノクロで作成するかの指定を行う列挙型。"""
 
-    MONO = 1  # モノクロ
-    RGB = 3  # RGBカラー
+    MONO = 1    # モノクロ
+    RGB = 3     # RGBカラー
 
 
 class NoiseImage:
     """乱数を使用した2Dのノイズ画像を生成する"""
 
-    COLOR = ("rgb", "mono")  # RGB画像かモノクロか
-
     def __init__(
-        self, width=512, height=512, mag=1, color: Color = Color.RGB, resumple=Image.BOX
+        self, width=512, height=512, mag=1,
+        color: Color = Color.RGB, resample: int=Image.BOX
     ) -> None:
         """カラーもしくはモノクロで2Dのノイズ画像を生成して初期化。
         指定されたサイズで画像を生成後、指定された拡大方法、拡大率で拡大を行う。
@@ -29,15 +26,20 @@ class NoiseImage:
             color(Color): カラーかモノクロかの指定。
             resumple: 拡大方法。Imageクラスの拡大方法を指定。
         """
-        self.orig_w = width
-        self.orig_h = height
-        self.mag = mag
-        self.width = width * mag
-        self.height = height * mag
-        self.color = color
-        self.resumple = resumple
-        rimage = np.random.randint(
-            0, 256, (self.orig_h, self.orig_w, self.color.value)
-        ).astype(np.uint8)
-        src_img = Image.fromarray(rimage)
-        self.img = src_img.resize((self.width, self.height), resample=self.resumple)
+        self._orig_w = width
+        self._orig_h = height
+        self._mag = mag
+        self._width = width * mag
+        self._height = height * mag
+        self._color = color
+        self._resample = resample
+        rimage = np.random.randint(0, 256, (self._orig_h, self._orig_w, 3)) \
+            if self._color == Color.RGB \
+                else np.random.randint(0, 256, (self._orig_h, self._orig_w))
+        src_img = Image.fromarray(rimage.astype(np.uint8))
+        self._image = src_img.resize((self._width, self._height),
+                                     resample=self._resample) # type: ignore
+
+    @property
+    def image(self):
+        return self._image
