@@ -81,3 +81,32 @@ class NoiseImage:
             (self._width, self._height), resample=resample  # type: ignore
         )
         return self._image
+
+    def __add__(self, other):
+        '''+演算子。画像を重ね合わせる。
+        Args:
+            other(NoiseImage): 重ね合わせる画像。
+        Returns:
+            重ね合わせた後の画像。
+        Raises:
+            TypeError: 重ね合わせる画像の型が合わない。
+            ValueError: 重ね合わせる画像のサイズが合わない。
+        '''
+        if type(other) != NoiseImage:
+            raise TypeError
+        if self._image.size != other.image.size:
+            raise ValueError
+        return Image.blend(self._image, other.image, 0.5)
+
+    def __iadd_(self, other):
+        '''+=演算子。画像を重ね合わせる。
+        Args:
+            other(NoiseImage): 重ね合わせる画像。
+        Returns:
+            重ね合わせた後の画像。
+        Raises:
+            TypeError: 重ね合わせる画像の型が合わない。
+            ValueError: 重ね合わせる画像のサイズが合わない。
+        '''
+        self = self + other
+        return self
