@@ -17,9 +17,7 @@ class NoiseImage:
         self,
         width=512,
         height=512,
-        #        mag=1,
         color=Color.RGB,
-        #        resample=Image.BOX,
         seed=-1,
     ) -> None:
         """カラーもしくはモノクロで2Dのノイズ画像を生成するためのパラメーターを初期化。
@@ -63,7 +61,7 @@ class NoiseImage:
     def color(self):
         return self._color
 
-    def enlarge(self, mag=1, resample=Image.BOX):
+    def enlarge(self, mag=1, resample=Image.NONE):
         """画像の拡大を行う。
         Args:
             mag(int): 拡大率。
@@ -71,9 +69,20 @@ class NoiseImage:
         Returns:
             Image: 拡大後の画像。
         Raises:
-            ValueError: 拡大率が0もしくは負数の場合。
+            ValueError: 拡大率が0もしくは負数の場合か、拡大方法の指定が誤り。
         """
         if mag <= 0:
+            raise ValueError
+        if resample is Image.NONE:
+            resample = Image.BOX
+        elif resample not in (
+            Image.NEAREST,
+            Image.BILINEAR,
+            Image.BICUBIC,
+            Image.LANCZOS,
+            Image.BOX,
+            Image.HAMMING,
+        ):
             raise ValueError
         self._width *= mag
         self._height *= mag
