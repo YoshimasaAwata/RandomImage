@@ -11,7 +11,7 @@ class SmoothNoiseImage(NoiseImage):
         height=512,
         color=Color.RGB,
         seed=-1,
-        mag=1,
+        tile_size=4,
         resample=Image.NONE,
     ) -> None:
         """カラーもしくはモノクロで2Dのノイズ画像を生成するためのパラメーターを初期化。
@@ -20,10 +20,12 @@ class SmoothNoiseImage(NoiseImage):
             height(int): 画像の高さ。16ピクセル以上。
             color(Color): カラーかモノクロかの指定。
             seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
-            mag(int): 拡大率。
+            tile_size(int): タイルのサイズ。正方形の1辺のピクセル数。
             resample: 拡大方法。Imageクラスの拡大方法を指定。
         Raises:
-            ValueError: 画像サイズが条件に合わない場合。拡大率が0もしくは負数の場合か、拡大方法の指定が誤り。
+            ValueError: 画像サイズが条件に合わない場合。タイルサイズが0もしくは負数の場合か、拡大方法の指定が誤り。
         """
-        super().__init__(width, height, color, seed)
-        self.enlarge(mag, resample)
+        if (tile_size <= 0) or (width % tile_size != 0) or (height % tile_size):
+            raise ValueError("タイルのサイズの指定が間違っています。")
+        super().__init__(width // tile_size, height // tile_size, color, seed)
+        self.enlarge(tile_size, resample)
