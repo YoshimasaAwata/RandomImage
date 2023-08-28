@@ -1,4 +1,5 @@
 from enum import Enum
+import sys
 import numpy as np
 from PIL import Image
 
@@ -22,22 +23,20 @@ class NoiseImage:
     ) -> None:
         """カラーもしくはモノクロで2Dのノイズ画像を生成するためのパラメーターを初期化。
         Args:
-            width(int): 画像の幅。16ピクセル以上。
-            height(int): 画像の高さ。16ピクセル以上。
+            width(int): 画像の幅。16ピクセル以上で16の倍数。
+            height(int): 画像の高さ。16ピクセル以上で16の倍数。
             color(Color): カラーかモノクロかの指定。
             seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
         Raises:
-            ValueError: 画像サイズが小さい場合。
+            ValueError: 画像サイズが条件に合わない場合。
         """
-        if (width <= 16) or (height <= 16):
-            raise ValueError
+        if (width < 16) or (height < 16) or (width % 16 != 0) or (height % 16 != 0):
+            raise ValueError("画像サイズは16x16以上で16の倍数として下さい。")
         self._width = width
         self._height = height
         self._color = color
-        if seed <= 0:
-            np.random.seed()
-        else:
-            np.random.seed(seed)
+        self._seed = seed if seed > 0 else np.random.randint(1, sys.maxsize)
+        np.random.seed(self._seed)
         rimage = (
             np.random.randint(0, 256, (height, width, 3))
             if self._color == Color.RGB
@@ -60,6 +59,10 @@ class NoiseImage:
     @property
     def color(self):
         return self._color
+
+    @property
+    def seed(self):
+        return self._seed
 
     def enlarge(self, mag=1, resample=Image.NONE):
         """画像の拡大を行う。
@@ -92,7 +95,7 @@ class NoiseImage:
         return self._image
 
     def __add__(self, other):
-        '''+演算子。画像を重ね合わせる。
+        """+演算子。画像を重ね合わせる。
         Args:
             other(NoiseImage): 重ね合わせる画像。
         Returns:
@@ -100,7 +103,7 @@ class NoiseImage:
         Raises:
             TypeError: 重ね合わせる画像の型が合わない。
             ValueError: 重ね合わせる画像のサイズが合わない。
-        '''
+        """
         if type(other) != NoiseImage:
             raise TypeError
         if self._image.size != other.image.size:
@@ -108,7 +111,7 @@ class NoiseImage:
         return Image.blend(self._image, other.image, 0.5)
 
     def __iadd_(self, other):
-        '''+=演算子。画像を重ね合わせる。
+        """+=演算子。画像を重ね合わせる。
         Args:
             other(NoiseImage): 重ね合わせる画像。
         Returns:
@@ -116,6 +119,6 @@ class NoiseImage:
         Raises:
             TypeError: 重ね合わせる画像の型が合わない。
             ValueError: 重ね合わせる画像のサイズが合わない。
-        '''
+        """
         self = self + other
         return self
