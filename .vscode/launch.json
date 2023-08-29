@@ -11,6 +11,14 @@
       "program": "${file}",
       "console": "integratedTerminal",
       "justMyCode": true
-    }
+    },
+    {
+      "name": "Python: エントリーポイント",
+      "type": "python",
+      "request": "launch",
+      "program": "random_image.py",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
   ]
 }

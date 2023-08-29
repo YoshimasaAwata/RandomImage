@@ -1,12 +1,12 @@
 from matplotlib import pyplot as plt
 from smooth_noise_image import SmoothNoiseImage, Color
+from turbulence_image import TurbulenceImage
 
 plt.ion()
 
-width = 768
+width = 512
 height = 512
-block_size = 4
-noise_img = SmoothNoiseImage(width, height, color=Color.MONO)
+noise_img = TurbulenceImage(width, height, color=Color.RGB, number=6)
 plt.imshow(noise_img.create_image(), cmap="gray")  # type: ignore
 
 print("done")

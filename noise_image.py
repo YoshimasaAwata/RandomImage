@@ -1,7 +1,7 @@
 from enum import Enum
-import sys
 import numpy as np
 from PIL import Image
+from abc import ABCMeta, abstractmethod
 
 
 class Color(Enum):
@@ -11,8 +11,8 @@ class Color(Enum):
     RGB = 3  # RGBカラー
 
 
-class NoiseImage:
-    """乱数を使用した2Dのノイズ画像を生成するクラス"""
+class NoiseImage(metaclass=ABCMeta):
+    """乱数を使用した2Dのノイズ画像を生成する抽象クラス。"""
 
     def __init__(
         self,
@@ -32,19 +32,11 @@ class NoiseImage:
         """
         if (width < 16) or (height < 16) or (width % 16 != 0) or (height % 16 != 0):
             raise ValueError("画像サイズは16x16以上で16の倍数として下さい。")
-        self.__width = width
-        self.__height = height
-        self.__color = color
-        np.random.seed()
-        self.__seed = seed if seed > 0 else np.random.randint(1, np.iinfo(np.int32).max)
-        # np.random.seed(self.__seed)
+        self.width = width
+        self.height = height
+        self.color = color
+        self.seed = seed
         self.__image: Image.Image | None = None
-        # rimage = (
-        #     np.random.randint(0, 256, (height, width, 3))
-        #     if self._color == Color.RGB
-        #     else np.random.randint(0, 256, (height, width))
-        # )
-        # self._image = Image.fromarray(rimage.astype(np.uint8))
 
     @property
     def image(self) -> Image.Image | None:
@@ -76,7 +68,7 @@ class NoiseImage:
     def height(self, value: int):
         if (value < 16) or (value % 16 != 0):
             raise ValueError("画像の高さは16以上で16の倍数として下さい。")
-        self.__height
+        self.__height = value
 
     @color.setter
     def color(self, value: Color):
@@ -89,13 +81,14 @@ class NoiseImage:
         else:
             np.random.seed()
             self.__seed = np.random.randint(1, np.iinfo(np.int32).max)
+        np.random.seed(self.__seed)
 
     @image.setter
     def image(self, value: Image.Image | None):
         self.__image = value
 
     def _check_resample(self, resample) -> bool:
-        """画像拡大時の拡大方法のチェック
+        """画像拡大時の拡大方法のチェック。
         Args:
             resample(int): 画像拡大時の拡大方法。
         Returns:
@@ -110,6 +103,11 @@ class NoiseImage:
             Image.BOX,
             Image.HAMMING,
         )
+
+    @abstractmethod
+    def create_image(self) -> Image.Image:
+        """ノイズ画像生成の抽象メソッド。"""
+        pass
 
     # def enlarge(self, mag=1, resample=Image.NONE):
     #     """画像の拡大を行う。

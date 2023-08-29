@@ -1,3 +1,4 @@
+import numpy as np
 from noise_image import Color, NoiseImage
 from smooth_noise_image import SmoothNoiseImage
 from PIL import Image
@@ -13,7 +14,7 @@ class TurbulenceImage(NoiseImage):
         color=Color.MONO,
         seed=-1,
         number=5,
-        resample=Image.NONE,
+        resample=Image.BICUBIC,
     ) -> None:
         """カラーもしくはモノクロで2Dのノイズ画像を生成するためのパラメーターを初期化。
         Args:
@@ -66,3 +67,21 @@ class TurbulenceImage(NoiseImage):
         if not self._check_resample(value):
             raise ValueError("拡大方法はImageに規定された値を用います。")
         self.__resample = value
+
+    def create_image(self) -> Image.Image:
+        tile_size = 2 ** (self.number - 1)
+        total = (
+            np.zeros((self.height, self.width, 3), dtype=np.int32)
+            if self.color == Color.RGB
+            else np.zeros((self.height, self.width), dtype=np.int32)
+        )
+        while tile_size >= 1:
+            width = self.width // tile_size
+            height = self.height // tile_size
+            image = SmoothNoiseImage.create_base_image(width, height, self.color)
+            image = image.resize((self.width, self.height), resample=self.resample) # type: ignore
+            total += np.array(image)
+            tile_size //= 2
+        final_image = Image.fromarray((total / 5).astype(np.uint8))
+        self.image = final_image
+        return final_image

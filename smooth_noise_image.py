@@ -4,7 +4,7 @@ import numpy as np
 
 
 class SmoothNoiseImage(NoiseImage):
-    """乱数を使用した2Dのタイル状のノイズ画像を生成するクラス"""
+    """乱数を使用した2Dのタイル状のノイズ画像を生成するクラス。"""
 
     def __init__(
         self,
@@ -51,17 +51,30 @@ class SmoothNoiseImage(NoiseImage):
         self.__resample = value
 
     def create_image(self) -> Image.Image:
-        """2Dのタイル状のノイズ画像を生成"""
-        orig_width = self.width // self.tile_size
-        orig_height = self.height // self.tile_size
-        rimage = (
-            np.random.randint(0, 256, (orig_height, orig_width, 3))
-            if self.color == Color.RGB
-            else np.random.randint(0, 256, (orig_height, orig_width))
-        )
-        image = Image.fromarray(rimage.astype(np.uint8))
+        """2Dのタイル状のノイズ画像を生成。"""
+        width = self.width // self.tile_size
+        height = self.height // self.tile_size
+        image = SmoothNoiseImage.create_base_image(width, height, self.color)
         image = image.resize(
             (self.width, self.height), resample=self.resample  # type: ignore
         )
         self.image = image
+        return image
+
+    @staticmethod
+    def create_base_image(width: int, height: int, color: Color) -> Image.Image:
+        """基本となる2Dノイズ画像の作成。
+        Args:
+            width(int): 画像の幅。1以上。
+            height(int): 画像の高さ。1以上。
+            color(int): Color.MONOかColor.RGBか。
+        Returns:
+            2Dノイズ画像。
+        """
+        rimage = (
+            np.random.randint(0, 256, (height, width, 3))
+            if color == Color.RGB
+            else np.random.randint(0, 256, (height, width))
+        )
+        image = Image.fromarray(rimage.astype(np.uint8))
         return image
