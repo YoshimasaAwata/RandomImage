@@ -94,6 +94,23 @@ class NoiseImage:
     def image(self, value: Image.Image | None):
         self.__image = value
 
+    def _check_resample(self, resample) -> bool:
+        """画像拡大時の拡大方法のチェック
+        Args:
+            resample(int): 画像拡大時の拡大方法。
+        Returns:
+            Image内に指定された拡大方法の場合True、それ以外はFalseが返る。
+        """
+        return resample in (
+            Image.NONE,
+            Image.NEAREST,
+            Image.BILINEAR,
+            Image.BICUBIC,
+            Image.LANCZOS,
+            Image.BOX,
+            Image.HAMMING,
+        )
+
     # def enlarge(self, mag=1, resample=Image.NONE):
     #     """画像の拡大を行う。
     #     Args:

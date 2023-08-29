@@ -26,31 +26,9 @@ class SmoothNoiseImage(NoiseImage):
         Raises:
             ValueError: 画像サイズが条件に合わない場合。タイルサイズが0もしくは負数の場合か、拡大方法の指定が誤り。
         """
-        if (tile_size <= 0) or (width % tile_size != 0) or (height % tile_size != 0):
-            raise ValueError("タイルのサイズの指定が間違っています。")
-        if not self._check_resample(resample):
-            raise ValueError("拡大方法はImageに規定された値を用います。")
         super().__init__(width // tile_size, height // tile_size, color, seed)
-        self.__tile_size = tile_size
-        self.__resample = resample
-        # self.enlarge(tile_size, resample)
-
-    def _check_resample(self, resample) -> bool:
-        """画像拡大時の拡大方法のチェック
-        Args:
-            resample(int): 画像拡大時の拡大方法。
-        Returns:
-            Image内に指定された拡大方法の場合True、それ以外はFalseが返る。
-        """
-        return resample in (
-            Image.NONE,
-            Image.NEAREST,
-            Image.BILINEAR,
-            Image.BICUBIC,
-            Image.LANCZOS,
-            Image.BOX,
-            Image.HAMMING,
-        )
+        self.tile_size = tile_size
+        self.resample = resample
 
     @property
     def tile_size(self) -> int:
