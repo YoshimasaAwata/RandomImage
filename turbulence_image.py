@@ -30,12 +30,12 @@ class TurbulenceImage(NoiseImage):
         tile_size = 2 ** (number - 1)
         if (number < 1) or (width // tile_size < 16) or (height // tile_size < 16):
             raise ValueError("重ね合わせる画像の数の指定に間違いがあります。")
-        image = self._image.putalpha()
+        # image = self.image.putalpha()
         while tile_size > 1:
             new_width = width // tile_size
             new_height = height // tile_size
             noise_image = SmoothNoiseImage(
-                new_width, new_height, self._color, self._seed, tile_size, resample
+                new_width, new_height, self.__color, self.__seed, tile_size, resample
             )
-            images.append(noise_image.image)
+            # images.append(noise_image.image)
             tile_size //= 2

@@ -1,12 +1,12 @@
 from matplotlib import pyplot as plt
-from noise_image import NoiseImage, Color
+from smooth_noise_image import SmoothNoiseImage, Color
 
 plt.ion()
 
 width = 768
 height = 512
 block_size = 4
-noise_img = NoiseImage(int(width / block_size), int(height / block_size))
-plt.imshow(noise_img.enlarge(block_size))  # type: ignore
+noise_img = SmoothNoiseImage(width, height, color=Color.MONO)
+plt.imshow(noise_img.create_image(), cmap="gray")  # type: ignore
 
 print("done")
