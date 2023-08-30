@@ -7,6 +7,6 @@ plt.ion()
 width = 512
 height = 512
 noise_img = TurbulenceImage(width, height, color=Color.RGB, number=6)
-plt.imshow(noise_img.create_image(), cmap="gray")  # type: ignore
+plt.imshow(noise_img.get_mono(), cmap="gray")  # type: ignore
 
 print("done")
