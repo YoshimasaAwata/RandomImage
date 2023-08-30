@@ -5,9 +5,9 @@ from abc import ABCMeta, abstractmethod
 
 
 class Color(Enum):
-    """2D画像をカラーで作成するかモノクロで作成するかの指定を行う列挙型。"""
+    """2D画像をカラーで作成するかグレーで作成するかの指定を行う列挙型。"""
 
-    MONO = 1  # モノクロ
+    GRAY = 1  # グレー
     RGB = 3  # RGBカラー
 
 
@@ -21,11 +21,11 @@ class NoiseImage(metaclass=ABCMeta):
         color=Color.RGB,
         seed=-1,
     ) -> None:
-        """カラーもしくはモノクロで2Dのノイズ画像を生成するためのパラメーターを初期化。
+        """カラーもしくはグレーで2Dのノイズ画像を生成するためのパラメーターを初期化。
         Args:
             width(int): 画像の幅。16ピクセル以上で16の倍数。
             height(int): 画像の高さ。16ピクセル以上で16の倍数。
-            color(Color): カラーかモノクロかの指定。
+            color(Color): カラーかグレーかの指定。
             seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
         Raises:
             ValueError: 画像サイズが条件に合わない場合。
@@ -92,7 +92,7 @@ class NoiseImage(metaclass=ABCMeta):
         Args:
             resample(int): 画像拡大時の拡大方法。
         Returns:
-            Image内に指定された拡大方法の場合True、それ以外はFalseが返る。
+            bool: Image内に指定された拡大方法の場合True、それ以外はFalseが返る。
         """
         return resample in (
             Image.NONE,
@@ -106,8 +106,25 @@ class NoiseImage(metaclass=ABCMeta):
 
     @abstractmethod
     def create_image(self) -> Image.Image:
-        """ノイズ画像生成の抽象メソッド。"""
+        """ノイズ画像生成の抽象メソッド。
+        Returns:
+            Image.Image: ノイズ画像。
+        """
         pass
+
+    def get_mono(self) -> Image.Image:
+        """グレーーム画像の取得。
+        Color.RGBが指定されている画像でもグレー画像を取得。
+        画像が作成されていない場合には新たに画像が作成される。
+        Returns:
+            グレー画像。
+        """
+        image = (
+            self.create_image().convert(mode="L")
+            if self.image == None
+            else self.image.convert(mode="L")
+        )
+        return image
 
     # def enlarge(self, mag=1, resample=Image.NONE):
     #     """画像の拡大を行う。

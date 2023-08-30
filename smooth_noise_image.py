@@ -15,11 +15,11 @@ class SmoothNoiseImage(NoiseImage):
         tile_size=4,
         resample=Image.BOX,
     ) -> None:
-        """カラーもしくはモノクロで2Dのノイズ画像を生成するためのパラメーターを初期化。
+        """カラーもしくはグレーで2Dのノイズ画像を生成するためのパラメーターを初期化。
         Args:
             width(int): 画像の幅。16ピクセル以上。
             height(int): 画像の高さ。16ピクセル以上。
-            color(Color): カラーかモノクロかの指定。
+            color(Color): カラーかグレーかの指定。
             seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
             tile_size(int): タイルのサイズ。正方形の1辺のピクセル数。
             resample: 拡大方法。Imageクラスの拡大方法を指定。
@@ -51,7 +51,10 @@ class SmoothNoiseImage(NoiseImage):
         self.__resample = value
 
     def create_image(self) -> Image.Image:
-        """2Dのタイル状のノイズ画像を生成。"""
+        """2Dのタイル状のノイズ画像を生成。
+        Returns:
+            Image.Image: 2Dのタイル状のノイズ画像。
+        """
         width = self.width // self.tile_size
         height = self.height // self.tile_size
         image = SmoothNoiseImage.create_base_image(width, height, self.color)
@@ -69,7 +72,7 @@ class SmoothNoiseImage(NoiseImage):
             height(int): 画像の高さ。1以上。
             color(int): Color.MONOかColor.RGBか。
         Returns:
-            2Dノイズ画像。
+            Image.Image: 2Dノイズ画像。
         """
         rimage = (
             np.random.randint(0, 256, (height, width, 3))
