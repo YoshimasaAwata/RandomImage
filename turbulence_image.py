@@ -17,6 +17,7 @@ class TurbulenceImage(NoiseImage):
         resample=Image.BICUBIC,
     ) -> None:
         """カラーもしくはグレーで2Dのノイズ画像を生成するためのパラメーターを初期化。
+
         Args:
             width(int): 画像の幅。16ピクセル以上。
             height(int): 画像の高さ。16ピクセル以上。
@@ -24,8 +25,11 @@ class TurbulenceImage(NoiseImage):
             seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
             number(int): 画像の重ね合わせの枚数。2～
             resumple: 画像拡大方法。Imageクラスの拡大方法を指定。
+
         Raises:
-            ValueError: 画像サイズが条件に合わない場合。重ね合わせる画像の数や拡大方法の指定が誤り。
+            ValueError:
+                画像サイズが条件に合わない場合。
+                重ね合わせる画像の数や拡大方法の指定が誤り。
         """
         super().__init__(width, height, color, seed)
         self.number = number
@@ -57,6 +61,11 @@ class TurbulenceImage(NoiseImage):
         self.__resample = value
 
     def create_image(self) -> Image.Image:
+        """山岳や雲のような2Dのノイズ画像を生成、取得。
+
+        Returns:
+            Image.Image: ノイズ画像。
+        """
         tile_size = 2 ** (self.number - 1)
         total = (
             np.zeros((self.height, self.width, 3), dtype=np.int32)
@@ -77,6 +86,7 @@ class TurbulenceImage(NoiseImage):
     @staticmethod
     def check_param(width: int, height: int, number: int) -> bool:
         """画像の幅と高さ、重ね合わせ枚数が妥当かどうかの確認。
+
         Returns:
             bool: 妥当(True)か妥当でない(False)か。
         """

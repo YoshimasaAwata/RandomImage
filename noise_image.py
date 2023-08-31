@@ -22,11 +22,13 @@ class NoiseImage(metaclass=ABCMeta):
         seed=-1,
     ) -> None:
         """カラーもしくはグレーで2Dのノイズ画像を生成するためのパラメーターを初期化。
+
         Args:
             width(int): 画像の幅。16ピクセル以上で16の倍数。
             height(int): 画像の高さ。16ピクセル以上で16の倍数。
             color(Color): カラーかグレーかの指定。
             seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
+
         Raises:
             ValueError: 画像サイズが条件に合わない場合。
         """
@@ -89,8 +91,10 @@ class NoiseImage(metaclass=ABCMeta):
 
     def _check_resample(self, resample) -> bool:
         """画像拡大時の拡大方法のチェック。
+
         Args:
             resample(int): 画像拡大時の拡大方法。
+
         Returns:
             bool: Image内に指定された拡大方法の場合True、それ以外はFalseが返る。
         """
@@ -107,6 +111,7 @@ class NoiseImage(metaclass=ABCMeta):
     @abstractmethod
     def create_image(self) -> Image.Image:
         """ノイズ画像生成の抽象メソッド。
+
         Returns:
             Image.Image: ノイズ画像。
         """
@@ -114,8 +119,10 @@ class NoiseImage(metaclass=ABCMeta):
 
     def get_mono(self) -> Image.Image:
         """グレーーム画像の取得。
+
         Color.RGBが指定されている画像でもグレー画像を取得。
         画像が作成されていない場合には新たに画像が作成される。
+
         Returns:
             グレー画像。
         """
