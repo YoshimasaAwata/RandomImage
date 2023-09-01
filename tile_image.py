@@ -1,6 +1,7 @@
+import numpy as np
 from enum import Enum, auto
 from noise_image import Color, NoiseImage
-from PIL import Image
+from PIL import Image, ImageDraw
 
 
 class Shape(Enum):
@@ -23,7 +24,7 @@ class TileImage(NoiseImage):
         seed=-1,
         shape=Shape.SQUARE,
         max_tile_size=32,
-        tile_num=1000,
+        tile_num=10000,
         background=(255, 255, 255),
     ) -> None:
         """カラーもしくはグレーでタイルがランダムに配置された2Dの画像を生成するためのパラメーターを初期化。
@@ -97,4 +98,17 @@ class TileImage(NoiseImage):
         Returns:
             Image.Image: ノイズ画像。
         """
-        pass
+
+        mode = 'RGB' if self.color == Color.RGB else 'L'
+        image = Image.new(mode, (self.width, self.height), self.background)
+        brush = ImageDraw.Draw(image)
+        for n in range(self.tile_num):
+            rect_width = np.random.randint(1, self.max_tile_size)
+            rect_height = np.random.randint(1, self.max_tile_size)
+            x0 = np.random.randint(0, self.width-rect_width)
+            y0 = np.random.randint(0, self.height-rect_height)
+            x1 = x0 + rect_width
+            y1 = y0 + rect_height
+            fg_color = tuple(np.random.randint(0, 255, 3).tolist())
+            brush.rectangle((x0, y0, x1, y1), fill=fg_color)
+        return image
