@@ -11,6 +11,7 @@ class Shape(Enum):
     RECTANGLE = auto()  # 長方形
     TRIANGLE = auto()  # 三角形
     CIRCLE = auto()  # 円
+    ELLIPSIS = auto()   # 楕円
 
 
 class TileImage(NoiseImage):
@@ -102,13 +103,89 @@ class TileImage(NoiseImage):
         mode = 'RGB' if self.color == Color.RGB else 'L'
         image = Image.new(mode, (self.width, self.height), self.background)
         brush = ImageDraw.Draw(image)
+        draw_func = self._draw_square if self.shape == Shape.SQUARE\
+                else self._draw_rectangle if self.shape == Shape.RECTANGLE\
+                else self._draw_triangle if self.shape == Shape.TRIANGLE\
+                else self._draw_circle if self.shape == Shape.CIRCLE\
+                else self._draw_ellipse
         for n in range(self.tile_num):
-            rect_width = np.random.randint(1, self.max_tile_size)
-            rect_height = np.random.randint(1, self.max_tile_size)
-            x0 = np.random.randint(0, self.width-rect_width)
-            y0 = np.random.randint(0, self.height-rect_height)
-            x1 = x0 + rect_width
-            y1 = y0 + rect_height
-            fg_color = tuple(np.random.randint(0, 255, 3).tolist())
-            brush.rectangle((x0, y0, x1, y1), fill=fg_color)
+            draw_func(brush)
         return image
+
+    def _draw_square(self, brush: ImageDraw.ImageDraw):
+        """1つのランダムな正方形を描画。
+
+        Args:
+            brush(ImageDraw.ImageDraw): 描画用ブラシ。
+        """
+
+        square_size = np.random.randint(1, self.max_tile_size)
+        x0 = np.random.randint(0, self.width-square_size)
+        y0 = np.random.randint(0, self.height-square_size)
+        x1 = x0 + square_size
+        y1 = y0 + square_size
+        fg_color = tuple(np.random.randint(0, 255, 3).tolist())
+        brush.rectangle((x0, y0, x1, y1), fill=fg_color)
+
+    def _draw_rectangle(self, brush: ImageDraw.ImageDraw):
+        """1つのランダムな長方形を描画。
+
+        Args:
+            brush(ImageDraw.ImageDraw): 描画用ブラシ。
+        """
+
+        rect_width = np.random.randint(1, self.max_tile_size)
+        rect_height = np.random.randint(1, self.max_tile_size)
+        x0 = np.random.randint(0, self.width-rect_width)
+        y0 = np.random.randint(0, self.height-rect_height)
+        x1 = x0 + rect_width
+        y1 = y0 + rect_height
+        fg_color = tuple(np.random.randint(0, 255, 3).tolist())
+        brush.rectangle((x0, y0, x1, y1), fill=fg_color)
+
+    def _draw_triangle(self, brush: ImageDraw.ImageDraw):
+        """1つのランダムな三角形を描画。
+
+        Args:
+            brush(ImageDraw.ImageDraw): 描画用ブラシ。
+        """
+
+        x0 = np.random.randint(0, self.width)
+        y0 = np.random.randint(0, self.height)
+        x1 = x0 + np.random.randint(-self.max_tile_size, self.max_tile_size)
+        y1 = y0 + np.random.randint(-self.max_tile_size, self.max_tile_size)
+        x2 = x0 + np.random.randint(-self.max_tile_size, self.max_tile_size)
+        y2 = y0 + np.random.randint(-self.max_tile_size, self.max_tile_size)
+        fg_color = tuple(np.random.randint(0, 255, 3).tolist())
+        brush.polygon((x0, y0, x1, y1, x2, y2), fill=fg_color)
+
+    def _draw_circle(self, brush: ImageDraw.ImageDraw):
+        """1つのランダムな円形を描画。
+
+        Args:
+            brush(ImageDraw.ImageDraw): 描画用ブラシ。
+        """
+
+        circle_radius = np.random.randint(1, self.max_tile_size)
+        x0 = np.random.randint(0, self.width - circle_radius)
+        y0 = np.random.randint(0, self.height - circle_radius)
+        x1 = x0 + circle_radius
+        y1 = y0 + circle_radius
+        fg_color = tuple(np.random.randint(0, 255, 3).tolist())
+        brush.ellipse((x0, y0, x1, y1), fill=fg_color)
+
+    def _draw_ellipse(self, brush: ImageDraw.ImageDraw):
+        """1つのランダムな楕円形を描画。
+
+        Args:
+            brush(ImageDraw.ImageDraw): 描画用ブラシ。
+        """
+
+        circle_width = np.random.randint(1, self.max_tile_size)
+        circle_height = np.random.randint(1, self.max_tile_size)
+        x0 = np.random.randint(0, self.width - circle_width)
+        y0 = np.random.randint(0, self.height - circle_height)
+        x1 = x0 + circle_width
+        y1 = y0 + circle_height
+        fg_color = tuple(np.random.randint(0, 255, 3).tolist())
+        brush.ellipse((x0, y0, x1, y1), fill=fg_color)
