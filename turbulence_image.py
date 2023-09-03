@@ -9,12 +9,12 @@ class TurbulenceImage(NoiseImage):
 
     def __init__(
         self,
-        width=512,
-        height=512,
-        color=Color.GRAY,
-        seed=-1,
-        number=5,
-        resample=Image.BICUBIC,
+        width: int = 512,
+        height: int = 512,
+        color: Color = Color.GRAY,
+        seed: int = -1,
+        number: int = 5,
+        resample: int = Image.BICUBIC,
     ) -> None:
         """カラーもしくはグレーで2Dのノイズ画像を生成するためのパラメーターを初期化。
 
@@ -86,6 +86,11 @@ class TurbulenceImage(NoiseImage):
     @staticmethod
     def check_param(width: int, height: int, number: int) -> bool:
         """画像の幅と高さ、重ね合わせ枚数が妥当かどうかの確認。
+
+        Args:
+            width(int): 画像の幅。正数で16の倍数。
+            height(int): 画像の高さ。正数で16の倍数。
+            number(int): 重ね合わせる画像の枚数。2以上の整数。
 
         Returns:
             bool: 妥当(True)か妥当でない(False)か。

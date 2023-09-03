@@ -16,10 +16,10 @@ class NoiseImage(metaclass=ABCMeta):
 
     def __init__(
         self,
-        width=512,
-        height=512,
-        color=Color.RGB,
-        seed=-1,
+        width: int = 512,
+        height: int = 512,
+        color: Color = Color.RGB,
+        seed: int = -1,
     ) -> None:
         """カラーもしくはグレーで2Dのノイズ画像を生成するためのパラメーターを初期化。
 
@@ -118,13 +118,13 @@ class NoiseImage(metaclass=ABCMeta):
         pass
 
     def get_mono(self) -> Image.Image:
-        """グレーーム画像の取得。
+        """グレー画像の取得。
 
         Color.RGBが指定されている画像でもグレー画像を取得。
         画像が作成されていない場合には新たに画像が作成される。
 
         Returns:
-            グレー画像。
+            Image.Image: グレー画像。
         """
         image = (
             self.create_image().convert(mode="L")
@@ -133,61 +133,55 @@ class NoiseImage(metaclass=ABCMeta):
         )
         return image
 
-    # def enlarge(self, mag=1, resample=Image.NONE):
-    #     """画像の拡大を行う。
-    #     Args:
-    #         mag(int): 拡大率。
-    #         resample: 拡大方法。Imageクラスの拡大方法を指定。
-    #     Returns:
-    #         Image: 拡大後の画像。
-    #     Raises:
-    #         ValueError: 拡大率が0もしくは負数の場合か、拡大方法の指定が誤り。
-    #     """
-    #     if mag <= 0:
-    #         raise ValueError
-    #     if resample is Image.NONE:
-    #         resample = Image.BOX
-    #     elif resample not in (
-    #         Image.NEAREST,
-    #         Image.BILINEAR,
-    #         Image.BICUBIC,
-    #         Image.LANCZOS,
-    #         Image.BOX,
-    #         Image.HAMMING,
-    #     ):
-    #         raise ValueError
-    #     self._width *= mag
-    #     self._height *= mag
-    #     self._image = self._image.resize(
-    #         (self._width, self._height), resample=resample  # type: ignore
-    #     )
-    #     return self._image
+    def get_reduced_color(self, low: int = 0, high: int = 255) -> Image.Image:
+        """色の範囲を狭めた画像の取得。
 
-    # def __add__(self, other):
-    #     """+演算子。画像を重ね合わせる。
-    #     Args:
-    #         other(NoiseImage): 重ね合わせる画像。
-    #     Returns:
-    #         重ね合わせた後の画像。
-    #     Raises:
-    #         TypeError: 重ね合わせる画像の型が合わない。
-    #         ValueError: 重ね合わせる画像のサイズが合わない。
-    #     """
-    #     if type(other) != NoiseImage:
-    #         raise TypeError
-    #     if self._image.size != other.image.size:
-    #         raise ValueError
-    #     return Image.blend(self._image, other.image, 0.5)
+        Args:
+            low(int): 色の下限値。0～255。
+            high(int): 色の上限値。0～255。
 
-    # def __iadd_(self, other):
-    #     """+=演算子。画像を重ね合わせる。
-    #     Args:
-    #         other(NoiseImage): 重ね合わせる画像。
-    #     Returns:
-    #         重ね合わせた後の画像。
-    #     Raises:
-    #         TypeError: 重ね合わせる画像の型が合わない。
-    #         ValueError: 重ね合わせる画像のサイズが合わない。
-    #     """
-    #     self = self + other
-    #     return self
+        Returns:
+            Image.Image: 色の範囲を狭めた画像。
+
+        Raises:
+            ValueError: 色の指定が範囲外です。
+        """
+
+        if (low < 0) or (high > 255) or (low >= high):
+            raise ValueError("色の範囲は0～255の間でlow < highになるように指定して下さい。")
+        image = self.create_image() if self.image == None else self.image
+        rimage = np.array(image).astype(np.uint32)
+        rimage *= high - low
+        rimage //= 255
+        rimage += low
+        final_image = Image.fromarray(rimage.astype(np.uint8))
+        return final_image
+
+    def __add__(self, other):
+        """+演算子。画像を重ね合わせる。
+        Args:
+            other(NoiseImage): 重ね合わせる画像。
+        Returns:
+            重ね合わせた後の画像。
+        Raises:
+            TypeError: 重ね合わせる画像の型が合わない。
+            ValueError: 重ね合わせる画像のサイズが合わない。
+        """
+        if (type(other) != NoiseImage) or (other.image == None) or (self.image == None):
+            raise TypeError
+        elif self.image.size != other.image.size:
+            raise ValueError
+        return Image.blend(self.image, other.image, 0.5)
+
+    def __iadd__(self, other):
+        """+=演算子。画像を重ね合わせる。
+        Args:
+            other(NoiseImage): 重ね合わせる画像。
+        Returns:
+            重ね合わせた後の画像。
+        Raises:
+            TypeError: 重ね合わせる画像の型が合わない。
+            ValueError: 重ね合わせる画像のサイズが合わない。
+        """
+        self = self + other
+        return self

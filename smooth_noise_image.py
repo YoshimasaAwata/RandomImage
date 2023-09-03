@@ -8,12 +8,12 @@ class SmoothNoiseImage(NoiseImage):
 
     def __init__(
         self,
-        width=512,
-        height=512,
-        color=Color.RGB,
-        seed=-1,
-        tile_size=4,
-        resample=Image.BOX,
+        width: int = 512,
+        height: int = 512,
+        color: Color = Color.RGB,
+        seed: int = -1,
+        tile_size: int = 4,
+        resample: int = Image.BOX,
     ) -> None:
         """カラーもしくはグレーで2Dのノイズ画像を生成するためのパラメーターを初期化。
 
