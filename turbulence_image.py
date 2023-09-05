@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from noise_image import Color, NoiseImage
 from smooth_noise_image import SmoothNoiseImage
@@ -106,3 +107,23 @@ class TurbulenceImage(NoiseImage):
             and (height // tile_size >= 16)
         )
         return result
+
+    @staticmethod
+    def get_max_superposition(width: int, height: int) -> int:
+        """画像の幅と高さから重ね合わせ枚数の最大値を取得
+
+        Args:
+            width(int): 画像の幅。正数で16の倍数。
+            height(int): 画像の高さ。正数で16の倍数。
+
+        Returns:
+            int: 重ね合わせ枚数。
+
+        Raises:
+            ValueError: 画像の幅もしくは高さの値に異常。
+        """
+        if (width <= 0) or (height < 0) or (width % 16 != 0) or (height % 16 != 0):
+            raise ValueError("画像の幅や高さは16の倍数の正数です。")
+        num = math.log2(width) if width < height else math.log2(height)
+        num -= 3
+        return int(num)
