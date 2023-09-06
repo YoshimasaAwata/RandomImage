@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from noise_image import Color, NoiseImage
+from noise_image import ColorType, NoiseImage
 from smooth_noise_image import SmoothNoiseImage
 from PIL import Image
 
@@ -12,7 +12,7 @@ class TurbulenceImage(NoiseImage):
         self,
         width: int = 512,
         height: int = 512,
-        color: Color = Color.GRAY,
+        color: ColorType = ColorType.GRAYSCALE,
         seed: int = -1,
         number: int = 5,
         resample: int = Image.BICUBIC,
@@ -70,7 +70,7 @@ class TurbulenceImage(NoiseImage):
         tile_size = 2 ** (self.number - 1)
         total = (
             np.zeros((self.height, self.width, 3), dtype=np.int32)
-            if self.color == Color.RGB
+            if self.color == ColorType.RGB
             else np.zeros((self.height, self.width), dtype=np.int32)
         )
         while tile_size >= 1:

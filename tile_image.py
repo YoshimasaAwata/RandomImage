@@ -1,6 +1,6 @@
 import numpy as np
 from enum import Enum, auto
-from noise_image import Color, NoiseImage
+from noise_image import ColorType, NoiseImage
 from PIL import Image, ImageDraw, ImageColor
 
 
@@ -21,7 +21,7 @@ class TileImage(NoiseImage):
         self,
         width: int = 512,
         height: int = 512,
-        color: Color = Color.RGB,
+        color: ColorType = ColorType.RGB,
         seed: int = -1,
         shape: Shape = Shape.SQUARE,
         max_tile_size: int = 32,
@@ -103,7 +103,7 @@ class TileImage(NoiseImage):
             Image.Image: ノイズ画像。
         """
 
-        mode = "RGB" if self.color == Color.RGB else "L"
+        mode = "RGB" if self.color == ColorType.RGB else "L"
         image = Image.new(mode, (self.width, self.height), self.background)
         brush = ImageDraw.Draw(image)
         draw_func = (

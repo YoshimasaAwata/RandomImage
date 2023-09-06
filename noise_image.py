@@ -4,10 +4,10 @@ from PIL import Image
 from abc import ABCMeta, abstractmethod
 
 
-class Color(Enum):
-    """2D画像をカラーで作成するかグレーで作成するかの指定を行う列挙型。"""
+class ColorType(Enum):
+    """2D画像をカラーで作成するかグレースケールで作成するかの指定を行う列挙型。"""
 
-    GRAY = 1  # グレー
+    GRAYSCALE = 1  # グレー
     RGB = 3  # RGBカラー
 
 
@@ -18,7 +18,7 @@ class NoiseImage(metaclass=ABCMeta):
         self,
         width: int = 512,
         height: int = 512,
-        color: Color = Color.RGB,
+        color: ColorType = ColorType.RGB,
         seed: int = -1,
     ) -> None:
         """カラーもしくはグレーで2Dのノイズ画像を生成するためのパラメーターを初期化。
@@ -53,7 +53,7 @@ class NoiseImage(metaclass=ABCMeta):
         return self.__height
 
     @property
-    def color(self) -> Color:
+    def color(self) -> ColorType:
         return self.__color
 
     @property
@@ -73,7 +73,7 @@ class NoiseImage(metaclass=ABCMeta):
         self.__height = value
 
     @color.setter
-    def color(self, value: Color):
+    def color(self, value: ColorType):
         self.__color = value
 
     @seed.setter
@@ -185,3 +185,47 @@ class NoiseImage(metaclass=ABCMeta):
         """
         self = self + other
         return self
+
+    @staticmethod
+    def get_color_type(color: str) -> ColorType:
+        """文字列から色のタイプを取得。
+
+        RGBやグレースケールを示す文字列から列挙子に変える。
+        指定する文字列に問題がある場合には"RGB"を示す列挙子を返す。
+
+        Args:
+            color(str): "RGB"もしくは"GRAYSCALE"を文字列として指定。
+
+        Returns:
+            ColorType: "RGB"もしくは"GRAYSCALE"を示す列挙子。
+        """
+        if color.upper() == "GRAYSCALE":
+            return ColorType.GRAYSCALE
+        return ColorType.RGB
+
+    @staticmethod
+    def get_resample_type(resample: str) -> int:
+        """補間方法を文字列からImageクラスのタイプに変換。
+
+        Imageクラスに無い文字列を指定した場合にはImage.Noneを返す。
+
+        Args:
+            resample(str): 補間方法を指定する文字列。
+
+        Returns:
+            int: Imageクラスの補間タイプ。
+        """
+        if resample == "NEAREST":
+            return Image.NEAREST
+        elif resample == "BILINEAR":
+            return Image.BILINEAR
+        elif resample == "BICUBIC":
+            return Image.BICUBIC
+        elif resample == "LANCZOS":
+            return Image.LANCZOS
+        elif resample == "BOX":
+            return Image.BOX
+        elif resample == "HAMMING":
+            return Image.HAMMING
+        else:
+            return Image.NONE

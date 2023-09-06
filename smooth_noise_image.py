@@ -1,5 +1,5 @@
 from PIL import Image
-from noise_image import NoiseImage, Color
+from noise_image import NoiseImage, ColorType
 import numpy as np
 
 
@@ -10,7 +10,7 @@ class SmoothNoiseImage(NoiseImage):
         self,
         width: int = 512,
         height: int = 512,
-        color: Color = Color.RGB,
+        color: ColorType = ColorType.RGB,
         seed: int = -1,
         tile_size: int = 4,
         resample: int = Image.BOX,
@@ -70,7 +70,7 @@ class SmoothNoiseImage(NoiseImage):
         return image
 
     @staticmethod
-    def create_base_image(width: int, height: int, color: Color) -> Image.Image:
+    def create_base_image(width: int, height: int, color: ColorType) -> Image.Image:
         """基本となる2Dノイズ画像の作成。
 
         Args:
@@ -83,7 +83,7 @@ class SmoothNoiseImage(NoiseImage):
         """
         rimage = (
             np.random.randint(0, 256, (height, width, 3))
-            if color == Color.RGB
+            if color == ColorType.RGB
             else np.random.randint(0, 256, (height, width))
         )
         image = Image.fromarray(rimage.astype(np.uint8))
