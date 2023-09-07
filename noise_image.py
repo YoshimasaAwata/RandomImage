@@ -18,7 +18,7 @@ class NoiseImage(metaclass=ABCMeta):
         self,
         width: int = 512,
         height: int = 512,
-        color: ColorType = ColorType.RGB,
+        color: ColorType | str = ColorType.RGB,
         seed: int = -1,
     ) -> None:
         """カラーもしくはグレーで2Dのノイズ画像を生成するためのパラメーターを初期化。
@@ -26,7 +26,7 @@ class NoiseImage(metaclass=ABCMeta):
         Args:
             width(int): 画像の幅。16ピクセル以上で16の倍数。
             height(int): 画像の高さ。16ピクセル以上で16の倍数。
-            color(Color): カラーかグレーかの指定。
+            color(ColorType | str): カラーかグレーかの指定。
             seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
 
         Raises:
@@ -73,8 +73,11 @@ class NoiseImage(metaclass=ABCMeta):
         self.__height = value
 
     @color.setter
-    def color(self, value: ColorType):
-        self.__color = value
+    def color(self, value: ColorType | str):
+        if type(value) is ColorType:
+            self.__color = value
+        else:
+            self.__color = NoiseImage.get_color_type(str(value))
 
     @seed.setter
     def seed(self, value: int):
@@ -89,7 +92,7 @@ class NoiseImage(metaclass=ABCMeta):
     def image(self, value: Image.Image | None):
         self.__image = value
 
-    def _check_resample(self, resample) -> bool:
+    def _check_resample(self, resample: int) -> bool:
         """画像拡大時の拡大方法のチェック。
 
         Args:

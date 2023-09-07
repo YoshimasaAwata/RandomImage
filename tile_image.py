@@ -21,9 +21,9 @@ class TileImage(NoiseImage):
         self,
         width: int = 512,
         height: int = 512,
-        color: ColorType = ColorType.RGB,
+        color: ColorType | str = ColorType.RGB,
         seed: int = -1,
-        shape: Shape = Shape.SQUARE,
+        shape: Shape | str = Shape.SQUARE,
         max_tile_size: int = 32,
         tile_num: int = 10000,
         background: str | tuple | list = (255, 255, 255),
@@ -33,9 +33,9 @@ class TileImage(NoiseImage):
         Args:
             width(int): 画像の幅。16ピクセル以上。
             height(int): 画像の高さ。16ピクセル以上。
-            color(Color): カラーかグレーかの指定。
+            color(ColorType | str): カラーかグレーかの指定。
             seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
-            shape(Shape): タイルの形状。
+            shape(Shape | str): タイルの形状。
             max_tile_size(int): タイルの最大サイズ。
             tile_num(int): タイル数。
             background(str | tuple | list): 背景色。文字列もしくは(r, g, b)を0-255で指定。
@@ -69,8 +69,11 @@ class TileImage(NoiseImage):
         return self.__background
 
     @shape.setter
-    def shape(self, value: Shape):
-        self.__frag_shape = value
+    def shape(self, value: Shape | str):
+        if type(value) is Shape:
+            self.__frag_shape = value
+        else:
+            self.__frag_shape = TileImage.get_shape_type(str(value))
 
     @max_tile_size.setter
     def max_tile_size(self, value: int):
@@ -198,3 +201,31 @@ class TileImage(NoiseImage):
         y1 = y0 + circle_height
         fg_color = tuple(np.random.randint(0, 255, 3).tolist())
         brush.ellipse((x0, y0, x1, y1), fill=fg_color)
+
+    @staticmethod
+    def get_shape_type(shape: str) -> Shape:
+        """文字列からタイルの形状を取得。
+
+        SQUAREやTRIANGLEを示す文字列から列挙子に変える。
+        指定する文字列に問題がある場合には"SQUARE"を示す列挙子を返す。
+
+        Args:
+            shape(str): タイル形状を文字列として指定。
+
+        Returns:
+            Shape: タイル形状を示す列挙子。
+
+        Note:
+            タイル形状は以下から選択。
+            "SQUARE", "RECTANGLE", "TRIANGLE", "CIRCLE", "ELLIPSIS"。
+        """
+        shape = shape.upper()
+        if shape == "ELLIPSIS":
+            return Shape.ELLIPSIS
+        if shape == "CIRCLE":
+            return Shape.CIRCLE
+        if shape == "TRIANGLE":
+            return Shape.TRIANGLE
+        if shape == "RECTANGLE":
+            return Shape.RECTANGLE
+        return Shape.SQUARE

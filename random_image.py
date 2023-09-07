@@ -1,16 +1,28 @@
+from enum import Enum, auto
 import gradio as gr
+from PIL import Image
 from noise_image import NoiseImage, ColorType
 from smooth_noise_image import SmoothNoiseImage
+from tile_image import TileImage
 from turbulence_image import TurbulenceImage
+
+
+class ImageType(Enum):
+    """ノイズ画像の種類。"""
+
+    SMOOTH = auto()
+    TURBULENCE = auto()
+    TILE = auto()
+
 
 # 以下、コンポーネントの配置。
 with gr.Blocks() as random_image:
     gr.Markdown("# ランダム画像を生成")
-    iamge_generator = gr.State(SmoothNoiseImage())
+    image_type = gr.State(ImageType.SMOOTH)
     with gr.Row():
         with gr.Column(scale=1):
             with gr.Tab(label="Smooth") as smooth_tab:
-                tile_size = gr.Radio([2, 4, 8, 16], value=4, label="Tile size")
+                tile_size = gr.Radio([2, 4, 8, 16, 32, 64], value=4, label="Tile size")
                 resample_smooth = gr.Dropdown(
                     ["NEAREST", "BILINEAR", "BICUBIC", "LANCZOS", "BOX", "HAMMING"],
                     value="BOX",
@@ -31,16 +43,16 @@ with gr.Blocks() as random_image:
                     label="Resample",
                 )
             with gr.Tab(label="Tile") as tile_tab:
-                shape = gr.Dropdown(
+                tile_shape = gr.Dropdown(
                     ["SQUARE", "RECTANGLE", "TRIANGLE", "CIRCLE", "ELLIPSIS"],
                     value="SQUARE",
                     label="Shape",
                 )
-                max_size = gr.Slider(
+                max_tile_size = gr.Slider(
                     minimum=4, maximum=64, value=32, step=4, label="Max tile size"
                 )
                 tile_num = gr.Number(
-                    value=10000, label="Tile num", precision=0, minimum=1
+                    value=10000, label="Tile num (1～)", precision=0, minimum=1
                 )
                 background = gr.ColorPicker(
                     value="#FFFFFF", label="Background", interactive=True
@@ -54,97 +66,191 @@ with gr.Blocks() as random_image:
             image_color = gr.Radio(["RGB", "GRAYSCALE"], value="RGB", label="Color")
             rand_seed = gr.Number(
                 value=-1,
-                label="Seed",
+                label="Seed (-1 or 0～2147483647)",
                 precision=0,
                 minimum=-1,
                 maximum=2147483647,
                 step=1,
             )
         with gr.Column(scale=2):
-            output = gr.Image(type="pil", label="Output image", interactive=False)
+            output_image = gr.Image(type="pil", label="Output image", interactive=False)
             with gr.Row():
                 create_btn = gr.Button(value="Create image")
                 clear_btn = gr.Button(value="Clear")
                 save_btn = gr.Button(value="Save")
+            used_seed = gr.Number(label="Seed actually used", interactive=False)
 
+    # 以下、イベントハンドラーとイベント。
+    smooth_tab.select(lambda: ImageType.SMOOTH, outputs=image_type)
+    turbulence_tab.select(lambda: ImageType.TURBULENCE, outputs=image_type)
+    tile_tab.select(lambda: ImageType.TILE, outputs=image_type)
 
-# 以下、イベントハンドラーとイベント。
-def select_smooth(
-    width: int, height: int, color: str, seed: int, size: int, resample: str
-) -> SmoothNoiseImage:
-    """SmoothNoiseImageを選択。
+    def change_image_size(image_num: int, width: int, hight: int) -> dict:
+        """ノイズ画像のサイズ変更。
 
-    ノイズ画像を作成するインスタンスをSmoothNoiseImageに変更。
+        TurbulenceImageの重ね合わせ枚数の最大値を変更。
+        また、スライダーの最大値を画像の幅と高さに合わせて変更する。
 
-    Args:
-        width(int): 画像の幅。
-        height(int): 画像の高さ。
-        color(str): "RGB"もしくは"GRAYSCALE"
-        seed(int): -1以上の整数。
-        size(int): タイルの1辺のサイズ。
-        resample(str): 補間方法を表す文字列。
+        Args:
+            image_num(int): 画像の重ね合わせの枚数。
+            width(int): 画像の幅。
+            height(int): 画像の高さ。
 
-    Returns:
-        SmoothNoiseImage: 新たに作成されたSmoothNoiseImageのインスタンス。
-    """
-    generator = SmoothNoiseImage(
-        width,
-        height,
-        NoiseImage.get_color_type(color),
-        seed,
-        size,
-        NoiseImage.get_resample_type(resample),
+        Returns:
+            dict: アップデート後の重ね合わせ枚数を選択するスライダー。
+        """
+        num = TurbulenceImage.get_max_superposition(width, hight)
+        if num < image_num:
+            return gr.Slider.update(maximum=int(num), value=int(num))
+        else:
+            return gr.Slider.update(maximum=int(num))
+
+    image_width.change(
+        change_image_size,
+        inputs=[superposition, image_width, image_height],
+        outputs=superposition,
     )
-    return generator
+    image_height.change(
+        change_image_size,
+        inputs=[superposition, image_width, image_height],
+        outputs=superposition,
+    )
 
+    # def create_smooth_noise_image(
+    #     width: int, height: int, color: str, seed: int, t_size: int, resample_s: str
+    # ) -> tuple[int, Image.Image]:
+    #     """SmoothNoiseImageを実際に作成。
 
-smooth_tab.select(
-    select_smooth,
-    inputs=[
-        image_width,
-        image_height,
-        image_color,
-        rand_seed,
-        tile_size,
-        resample_smooth,
-    ],
-    outputs=iamge_generator,
-)
+    #     Args:
+    #         width(int): 画像の幅。
+    #         height(int): 画像の高さ。
+    #         color(str): カラー("RGB")かグレースケール("GRAYSCALE")か。
+    #         seed(int): 使用する乱数のseed。
+    #         t_size(int): SmoothNoiseImageのタイルのサイズ。
+    #         resample_s(str): SmoothNoiseImageの補間の種類。
 
+    #     Returns:
+    #         int: 実際に使用したseed値。
+    #         Image.Image: ノイズ画像。
+    #     """
+    #     creator = SmoothNoiseImage(width, height, color, seed, t_size, resample_s)
+    #     return creator.seed, creator.create_image()
 
-def change_image_size(
-    generator: NoiseImage, width: int, hight: int
-) -> tuple[NoiseImage, dict]:
-    """ノイズ画像のサイズ変更。
+    # def create_turbulence_image(
+    #     width: int, height: int, color: str, seed: int, image_num: int, resample_t: str
+    # ) -> tuple[int, Image.Image]:
+    #     """TurbulenceImageを実際に作成。
 
-    TurbulenceImageの重ね合わせ枚数の最大値を変更。
-    また、スライダーの最大値を画像の幅と高さに合わせて変更する。
+    #     Args:
+    #         width(int): 画像の幅。
+    #         height(int): 画像の高さ。
+    #         color(str): カラー("RGB")かグレースケール("GRAYSCALE")か。
+    #         seed(int): 使用する乱数のseed。
+    #         image_num(int): TurbulenceImageの画像の重ね合わせの枚数。
+    #         resample_t(str): TurbulenceImageの補間の種類。
 
-    Args:
-        generator(NoiseImage): 画像作成のクラス。
-        width(int): 画像の幅。
-        height(int): 画像の高さ。
+    #     Returns:
+    #         int: 実際に使用したseed値。
+    #         Image.Image: ノイズ画像。
+    #     """
+    #     creator = TurbulenceImage(width, height, color, seed, image_num, resample_t)
+    #     return creator.seed, creator.create_image()
 
-    Returns:
-        NoiseImage: 画像作成のクラス。
-        dict: アップデート後の重ね合わせ枚数を選択するスライダー。
-    """
-    num = TurbulenceImage.get_max_superposition(width, hight)
-    generator.width = width
-    generator.height = hight
-    return generator, gr.Slider.update(maximum=int(num))
+    # def create_tile_image(
+    #     width: int,
+    #     height: int,
+    #     color: str,
+    #     seed: int,
+    #     shape: str,
+    #     max_size: int,
+    #     num: int,
+    #     b_color: str,
+    # ) -> tuple[int, Image.Image]:
+    #     """TileImageを実際に作成。
 
+    #     Args:
+    #         width(int): 画像の幅。
+    #         height(int): 画像の高さ。
+    #         color(str): カラー("RGB")かグレースケール("GRAYSCALE")か。
+    #         seed(int): 使用する乱数のseed。
+    #         shape(str): TileImageのタイルの形状。
+    #         max_size(int): TileImageのタイルの最大サイズ。
+    #         num(int): TileImageのタイルの枚数。
+    #         b_color(str): TileImageのバックグラウンドカラー。
 
-image_width.change(
-    change_image_size,
-    inputs=[iamge_generator, image_width, image_height],
-    outputs=[iamge_generator, superposition],
-)
-image_height.change(
-    change_image_size,
-    inputs=[iamge_generator, image_width, image_height],
-    outputs=[iamge_generator, superposition],
-)
+    #     Returns:
+    #         int: 実際に使用したseed値。
+    #         Image.Image: ノイズ画像。
+    #     """
+    #     col = NoiseImage.get_color_type(color)
+    #     creator = TileImage(width, height, color, seed, shape, max_size, num, b_color)
+    #     return creator.seed, creator.create_image()
+
+    def create_image(
+        type: ImageType,
+        width: int,
+        height: int,
+        color: str,
+        seed: int,
+        t_size: int,
+        resample_s: str,
+        image_num: int,
+        resample_t: str,
+        shape: str,
+        max_size: int,
+        num: int,
+        b_color: str,
+    ) -> tuple[int, Image.Image]:
+        """ノイズ画像を実際に作成。
+
+        Args:
+            type(ImageType): ノイズ画像の種類。
+            width(int): 画像の幅。
+            height(int): 画像の高さ。
+            color(str): カラー("RGB")かグレースケール("GRAYSCALE")か。
+            seed(int): 使用する乱数のseed。
+            t_size(int): SmoothNoiseImageのタイルのサイズ。
+            resample_s(str): SmoothNoiseImageの補間の種類。
+            image_num(int): TurbulenceImageの画像の重ね合わせの枚数。
+            resample_t(str): TurbulenceImageの補間の種類。
+            shape(str): TileImageのタイルの形状。
+            max_size(int): TileImageのタイルの最大サイズ。
+            num(int): TileImageのタイルの枚数。
+            b_color(str): TileImageのバックグラウンドカラー。
+
+        Returns:
+            int: 実際に使用したseed値。
+            Image.Image: ノイズ画像。
+        """
+        if type == ImageType.TILE:
+            creator = TileImage(
+                width, height, color, seed, shape, max_size, num, b_color
+            )
+        elif type == ImageType.TURBULENCE:
+            creator = TurbulenceImage(width, height, color, seed, image_num, resample_t)
+        else:  # type == ImageType.SMOOTH
+            creator = SmoothNoiseImage(width, height, color, seed, t_size, resample_s)
+        return creator.seed, creator.create_image()
+
+    create_btn.click(
+        create_image,
+        inputs=[
+            image_type,
+            image_width,
+            image_height,
+            image_color,
+            rand_seed,
+            tile_size,
+            resample_smooth,
+            superposition,
+            resample_turbulence,
+            tile_shape,
+            max_tile_size,
+            tile_num,
+            background,
+        ],
+        outputs=[used_seed, output_image],
+    )
 
 if __name__ == "__main__":
     random_image.launch()

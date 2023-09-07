@@ -10,20 +10,20 @@ class SmoothNoiseImage(NoiseImage):
         self,
         width: int = 512,
         height: int = 512,
-        color: ColorType = ColorType.RGB,
+        color: ColorType | str = ColorType.RGB,
         seed: int = -1,
         tile_size: int = 4,
-        resample: int = Image.BOX,
+        resample: int | str = Image.BOX,
     ) -> None:
         """カラーもしくはグレーで2Dのノイズ画像を生成するためのパラメーターを初期化。
 
         Args:
             width(int): 画像の幅。16ピクセル以上。
             height(int): 画像の高さ。16ピクセル以上。
-            color(Color): カラーかグレーかの指定。
+            color(ColorType | str): カラーかグレーかの指定。
             seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
             tile_size(int): タイルのサイズ。正方形の1辺のピクセル数。
-            resample: 拡大方法。Imageクラスの拡大方法を指定。
+            resample(int | str): 拡大方法。Imageクラスの拡大方法を指定。
 
         Raises:
             ValueError:
@@ -49,10 +49,12 @@ class SmoothNoiseImage(NoiseImage):
         self.__tile_size = value
 
     @resample.setter
-    def resample(self, value: int):
-        if not self._check_resample(value):
+    def resample(self, value: int | str):
+        if type(value) is str:
+            value = NoiseImage.get_resample_type(value)
+        if not self._check_resample(int(value)):
             raise ValueError("拡大方法はImageに規定された値を用います。")
-        self.__resample = value
+        self.__resample = int(value)
 
     def create_image(self) -> Image.Image:
         """2Dのタイル状のノイズ画像を生成。
