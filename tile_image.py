@@ -21,9 +21,9 @@ class TileImage(NoiseImage):
         self,
         width: int = 512,
         height: int = 512,
-        color: ColorType | str = ColorType.RGB,
+        color: ColorType = ColorType.RGB,
         seed: int = -1,
-        shape: Shape | str = Shape.SQUARE,
+        shape: Shape = Shape.SQUARE,
         max_tile_size: int = 32,
         tile_num: int = 10000,
         background: str | tuple | list = (255, 255, 255),
@@ -33,9 +33,9 @@ class TileImage(NoiseImage):
         Args:
             width(int): 画像の幅。16ピクセル以上。
             height(int): 画像の高さ。16ピクセル以上。
-            color(ColorType | str): カラーかグレーかの指定。
+            color(ColorType): カラーかグレーかの指定。
             seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
-            shape(Shape | str): タイルの形状。
+            shape(Shape): タイルの形状。
             max_tile_size(int): タイルの最大サイズ。
             tile_num(int): タイル数。
             background(str | tuple | list): 背景色。文字列もしくは(r, g, b)を0-255で指定。
@@ -69,11 +69,8 @@ class TileImage(NoiseImage):
         return self.__background
 
     @shape.setter
-    def shape(self, value: Shape | str):
-        if type(value) is Shape:
-            self.__frag_shape = value
-        else:
-            self.__frag_shape = TileImage.get_shape_type(str(value))
+    def shape(self, value: Shape):
+        self.__frag_shape = value
 
     @max_tile_size.setter
     def max_tile_size(self, value: int):
@@ -90,7 +87,7 @@ class TileImage(NoiseImage):
     @background.setter
     def background(self, value: str | tuple | list):
         if type(value) is str:
-            self._background = ImageColor.getrgb(value)
+            self.__background = ImageColor.getrgb(value)
         else:
             if len(value) != 3:
                 raise ValueError("バックグラウンドカラーは(r, g, b)の形式です。")
@@ -106,8 +103,7 @@ class TileImage(NoiseImage):
             Image.Image: ノイズ画像。
         """
 
-        mode = "RGB" if self.color == ColorType.RGB else "L"
-        image = Image.new(mode, (self.width, self.height), self.background)
+        image = Image.new("RGB", (self.width, self.height), self.background)
         brush = ImageDraw.Draw(image)
         draw_func = (
             self._draw_square
@@ -122,6 +118,8 @@ class TileImage(NoiseImage):
         )
         for n in range(self.tile_num):
             draw_func(brush)
+        if self.color == ColorType.GRAYSCALE:
+            image = image.convert(mode="L")
         return image
 
     def _draw_square(self, brush: ImageDraw.ImageDraw):

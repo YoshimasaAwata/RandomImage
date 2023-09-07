@@ -1,7 +1,6 @@
 import math
 import numpy as np
 from noise_image import ColorType, NoiseImage
-from smooth_noise_image import SmoothNoiseImage
 from PIL import Image
 
 
@@ -12,20 +11,20 @@ class TurbulenceImage(NoiseImage):
         self,
         width: int = 512,
         height: int = 512,
-        color: ColorType | str = ColorType.GRAYSCALE,
+        color: ColorType = ColorType.GRAYSCALE,
         seed: int = -1,
         number: int = 5,
-        resample: int | str = Image.BICUBIC,
+        resample: Image.Resampling = Image.Resampling.BICUBIC,
     ) -> None:
         """カラーもしくはグレーで2Dのノイズ画像を生成するためのパラメーターを初期化。
 
         Args:
             width(int): 画像の幅。16ピクセル以上。
             height(int): 画像の高さ。16ピクセル以上。
-            color(ColorType | str): カラーかグレーかの指定。
+            color(ColorType): カラーかグレーかの指定。
             seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
             number(int): 画像の重ね合わせの枚数。2～
-            resumple(int | str): 画像拡大方法。Imageクラスの拡大方法を指定。
+            resumple(Image.Resampling): 画像拡大方法。Image.Resamplingクラスの拡大方法を指定。
 
         Raises:
             ValueError:
@@ -56,10 +55,8 @@ class TurbulenceImage(NoiseImage):
         self.__number = value
 
     @resample.setter
-    def resample(self, value: int | str):
-        if type(value) is str:
-            value = NoiseImage.get_resample_type(value)
-        if not self._check_resample(int(value)):
+    def resample(self, value: Image.Resampling):
+        if not self._check_resample(value):
             raise ValueError("拡大方法はImageに規定された値を用います。")
         self.__resample = int(value)
 
@@ -78,7 +75,7 @@ class TurbulenceImage(NoiseImage):
         while tile_size >= 1:
             width = self.width // tile_size
             height = self.height // tile_size
-            image = SmoothNoiseImage.create_base_image(width, height, self.color)
+            image = NoiseImage.create_base_image(width, height, self.color)
             image = image.resize((self.width, self.height), resample=self.resample)  # type: ignore
             total += np.array(image)
             tile_size //= 2

@@ -27,7 +27,7 @@ class NoiseImage(metaclass=ABCMeta):
             width(int): 画像の幅。16ピクセル以上で16の倍数。
             height(int): 画像の高さ。16ピクセル以上で16の倍数。
             color(ColorType | str): カラーかグレーかの指定。
-            seed(int): 乱数発生のシード値。0もしくは負数は自動設定。
+            seed(int): 乱数発生のシード値。負数は自動設定。
 
         Raises:
             ValueError: 画像サイズが条件に合わない場合。
@@ -81,7 +81,7 @@ class NoiseImage(metaclass=ABCMeta):
 
     @seed.setter
     def seed(self, value: int):
-        if value > 0:
+        if value >= 0:
             self.__seed = value
         else:
             np.random.seed()
@@ -92,23 +92,22 @@ class NoiseImage(metaclass=ABCMeta):
     def image(self, value: Image.Image | None):
         self.__image = value
 
-    def _check_resample(self, resample: int) -> bool:
+    def _check_resample(self, resample: Image.Resampling) -> bool:
         """画像拡大時の拡大方法のチェック。
 
         Args:
-            resample(int): 画像拡大時の拡大方法。
+            resample(Image.Resampling): 画像拡大時の拡大方法。
 
         Returns:
             bool: Image内に指定された拡大方法の場合True、それ以外はFalseが返る。
         """
         return resample in (
-            Image.NONE,
-            Image.NEAREST,
-            Image.BILINEAR,
-            Image.BICUBIC,
-            Image.LANCZOS,
-            Image.BOX,
-            Image.HAMMING,
+            Image.Resampling.NEAREST,
+            Image.Resampling.BILINEAR,
+            Image.Resampling.BICUBIC,
+            Image.Resampling.LANCZOS,
+            Image.Resampling.BOX,
+            Image.Resampling.HAMMING,
         )
 
     @abstractmethod
@@ -190,6 +189,26 @@ class NoiseImage(metaclass=ABCMeta):
         return self
 
     @staticmethod
+    def create_base_image(width: int, height: int, color: ColorType) -> Image.Image:
+        """基本となる2Dノイズ画像の作成。
+
+        Args:
+            width(int): 画像の幅。1以上。
+            height(int): 画像の高さ。1以上。
+            color(int): Color.MONOかColor.RGBか。
+
+        Returns:
+            Image.Image: 2Dノイズ画像。
+        """
+        rimage = (
+            np.random.randint(0, 256, (height, width, 3))
+            if color == ColorType.RGB
+            else np.random.randint(0, 256, (height, width))
+        )
+        image = Image.fromarray(rimage.astype(np.uint8))
+        return image
+
+    @staticmethod
     def get_color_type(color: str) -> ColorType:
         """文字列から色のタイプを取得。
 
@@ -207,10 +226,10 @@ class NoiseImage(metaclass=ABCMeta):
         return ColorType.RGB
 
     @staticmethod
-    def get_resample_type(resample: str) -> int:
+    def get_resample_type(resample: str) -> Image.Resampling:
         """補間方法を文字列からImageクラスのタイプに変換。
 
-        Imageクラスに無い文字列を指定した場合にはImage.Noneを返す。
+        Imageクラスに無い文字列を指定した場合にはImage.Resampling.NEARESTを返す。
 
         Args:
             resample(str): 補間方法を指定する文字列。
@@ -218,17 +237,15 @@ class NoiseImage(metaclass=ABCMeta):
         Returns:
             int: Imageクラスの補間タイプ。
         """
-        if resample == "NEAREST":
-            return Image.NEAREST
-        elif resample == "BILINEAR":
-            return Image.BILINEAR
+        if resample == "BILINEAR":
+            return Image.Resampling.BILINEAR
         elif resample == "BICUBIC":
-            return Image.BICUBIC
+            return Image.Resampling.BICUBIC
         elif resample == "LANCZOS":
-            return Image.LANCZOS
+            return Image.Resampling.LANCZOS
         elif resample == "BOX":
-            return Image.BOX
+            return Image.Resampling.BOX
         elif resample == "HAMMING":
-            return Image.HAMMING
-        else:
-            return Image.NONE
+            return Image.Resampling.HAMMING
+        else:  # resample == "NEAREST"
+            return Image.Resampling.NEAREST
