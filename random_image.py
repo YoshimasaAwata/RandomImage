@@ -18,18 +18,18 @@ class ImageType(Enum):
 # 以下、コンポーネントの配置。
 with gr.Blocks() as random_image:
     gr.Markdown("# ランダム画像を生成")
-    image_type = gr.State(ImageType.SMOOTH)
+    image_sta = gr.State(ImageType.SMOOTH)
     with gr.Row():
         with gr.Column(scale=1):
             with gr.Tab(label="Smooth") as smooth_tab:
-                tile_size = gr.Radio([2, 4, 8, 16, 32, 64], value=4, label="Tile size")
-                resample_smooth = gr.Dropdown(
+                tile_size_rdo = gr.Radio([2, 4, 8, 16, 32], value=4, label="Tile size")
+                resample_smooth_drp = gr.Dropdown(
                     ["NEAREST", "BILINEAR", "BICUBIC", "LANCZOS", "BOX", "HAMMING"],
                     value="BOX",
                     label="Resample",
                 )
             with gr.Tab(label="Turbulence") as turbulence_tab:
-                superposition = gr.Slider(
+                superposition_sld = gr.Slider(
                     minimum=2,
                     maximum=6,
                     value=5,
@@ -37,34 +37,34 @@ with gr.Blocks() as random_image:
                     label="Superposition",
                     interactive=True,
                 )
-                resample_turbulence = gr.Dropdown(
+                resample_turbulence_drp = gr.Dropdown(
                     ["NEAREST", "BILINEAR", "BICUBIC", "LANCZOS", "BOX", "HAMMING"],
                     value="BICUBIC",
                     label="Resample",
                 )
             with gr.Tab(label="Tile") as tile_tab:
-                tile_shape = gr.Dropdown(
+                tile_shape_drp = gr.Dropdown(
                     ["SQUARE", "RECTANGLE", "TRIANGLE", "CIRCLE", "ELLIPSIS"],
                     value="SQUARE",
                     label="Shape",
                 )
-                max_tile_size = gr.Slider(
+                max_tile_size_sld = gr.Slider(
                     minimum=4, maximum=64, value=32, step=4, label="Max tile size"
                 )
                 tile_num = gr.Number(
                     value=10000, label="Tile num (1～)", precision=0, minimum=1
                 )
-                background = gr.ColorPicker(
+                background_pck = gr.ColorPicker(
                     value="#FFFFFF", label="Background", interactive=True
                 )
-            image_width = gr.Slider(
-                minimum=128, maximum=8192, value=512, step=16, label="Width"
+            image_width_sld = gr.Slider(
+                minimum=128, maximum=8192, value=512, step=32, label="Width"
             )
-            image_height = gr.Slider(
-                minimum=128, maximum=8192, value=512, step=16, label="Height"
+            image_height_sld = gr.Slider(
+                minimum=128, maximum=8192, value=512, step=32, label="Height"
             )
-            image_color = gr.Radio(["RGB", "GRAYSCALE"], value="RGB", label="Color")
-            rand_seed = gr.Number(
+            image_color_rdo = gr.Radio(["RGB", "GRAYSCALE"], value="RGB", label="Color")
+            rand_seed_num = gr.Number(
                 value=-1,
                 label="Seed (-1 or 0～2147483647)",
                 precision=0,
@@ -72,18 +72,27 @@ with gr.Blocks() as random_image:
                 maximum=2147483647,
                 step=1,
             )
-        with gr.Column(scale=2):
-            output_image = gr.Image(type="pil", label="Output image", interactive=False)
+        with gr.Column():
+            output_img = gr.Image(
+                width=512,
+                height=512,
+                type="pil",
+                label="Output image",
+                interactive=False,
+                tool="editor",
+            )
             with gr.Row():
                 create_btn = gr.Button(value="Create image")
-                clear_btn = gr.Button(value="Clear")
-                save_btn = gr.Button(value="Save")
-            used_seed = gr.Number(label="Seed actually used", interactive=False)
+                clear_btn = gr.Button(value="Clear", interactive=False)
+            with gr.Row():
+                used_seed_num = gr.Number(
+                    label="Seed actually used", interactive=False, scale=2
+                )
 
     # 以下、イベントハンドラーとイベント。
-    smooth_tab.select(lambda: ImageType.SMOOTH, outputs=image_type)
-    turbulence_tab.select(lambda: ImageType.TURBULENCE, outputs=image_type)
-    tile_tab.select(lambda: ImageType.TILE, outputs=image_type)
+    smooth_tab.select(lambda: ImageType.SMOOTH, outputs=image_sta)
+    turbulence_tab.select(lambda: ImageType.TURBULENCE, outputs=image_sta)
+    tile_tab.select(lambda: ImageType.TILE, outputs=image_sta)
 
     def change_image_size(image_num: int, width: int, hight: int) -> dict:
         """ノイズ画像のサイズ変更。
@@ -97,7 +106,7 @@ with gr.Blocks() as random_image:
             height(int): 画像の高さ。
 
         Returns:
-            dict: アップデート後の重ね合わせ枚数を選択するスライダー。
+            dict: アップデート後の重ね合わせ枚数を選択するスライダーの設定。
         """
         num = TurbulenceImage.get_max_superposition(width, hight)
         if num < image_num:
@@ -105,15 +114,15 @@ with gr.Blocks() as random_image:
         else:
             return gr.Slider.update(maximum=int(num))
 
-    image_width.change(
+    image_width_sld.change(
         change_image_size,
-        inputs=[superposition, image_width, image_height],
-        outputs=superposition,
+        inputs=[superposition_sld, image_width_sld, image_height_sld],
+        outputs=superposition_sld,
     )
-    image_height.change(
+    image_height_sld.change(
         change_image_size,
-        inputs=[superposition, image_width, image_height],
-        outputs=superposition,
+        inputs=[superposition_sld, image_width_sld, image_height_sld],
+        outputs=superposition_sld,
     )
 
     def create_image(
@@ -130,7 +139,7 @@ with gr.Blocks() as random_image:
         max_size: int,
         num: int,
         b_color: str,
-    ) -> tuple[int, Image.Image]:
+    ) -> tuple[int, Image.Image, dict]:
         """ノイズ画像を実際に作成。
 
         Args:
@@ -151,6 +160,7 @@ with gr.Blocks() as random_image:
         Returns:
             int: 実際に使用したseed値。
             Image.Image: ノイズ画像。
+            dict: クリアボタンの設定。
         """
         color_type = NoiseImage.get_color_type(color)
         if type == ImageType.TILE:
@@ -168,26 +178,35 @@ with gr.Blocks() as random_image:
             creator = SmoothNoiseImage(
                 width, height, color_type, seed, t_size, resample
             )
-        return creator.seed, creator.create_image()
+        return creator.seed, creator.create_image(), gr.Button.update(interactive=True)
 
     create_btn.click(
         create_image,
         inputs=[
-            image_type,
-            image_width,
-            image_height,
-            image_color,
-            rand_seed,
-            tile_size,
-            resample_smooth,
-            superposition,
-            resample_turbulence,
-            tile_shape,
-            max_tile_size,
+            image_sta,
+            image_width_sld,
+            image_height_sld,
+            image_color_rdo,
+            rand_seed_num,
+            tile_size_rdo,
+            resample_smooth_drp,
+            superposition_sld,
+            resample_turbulence_drp,
+            tile_shape_drp,
+            max_tile_size_sld,
             tile_num,
-            background,
+            background_pck,
         ],
-        outputs=[used_seed, output_image],
+        outputs=[used_seed_num, output_img, clear_btn],
+    )
+
+    clear_btn.click(
+        lambda: (
+            gr.Number.update(value=-1),
+            gr.Image.update(value=None),
+            gr.Button.update(interactive=False),
+        ),
+        outputs=[used_seed_num, output_img, clear_btn],
     )
 
 if __name__ == "__main__":
