@@ -1,0 +1,11 @@
+#img_box {
+    margin-left: auto;
+    margin-right: auto;
+    width: 512px;
+    height: 512px;
+    border-radius: 0;
+}
+
+.gradio-container {
+  background-color: blue;
+}

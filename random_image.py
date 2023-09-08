@@ -16,11 +16,11 @@ class ImageType(Enum):
 
 
 # 以下、コンポーネントの配置。
-with gr.Blocks() as random_image:
+with gr.Blocks(css="random_image.css") as random_image:
     gr.Markdown("# ランダム画像を生成")
     image_sta = gr.State(ImageType.SMOOTH)
     with gr.Row():
-        with gr.Column(scale=1):
+        with gr.Column():
             with gr.Tab(label="Smooth") as smooth_tab:
                 tile_size_rdo = gr.Radio([2, 4, 8, 16, 32], value=4, label="Tile size")
                 resample_smooth_drp = gr.Dropdown(
@@ -74,12 +74,10 @@ with gr.Blocks() as random_image:
             )
         with gr.Column():
             output_img = gr.Image(
-                width=512,
-                height=512,
                 type="pil",
                 label="Output image",
                 interactive=False,
-                tool="editor",
+                elem_id="img_box",
             )
             with gr.Row():
                 create_btn = gr.Button(value="Create image")
