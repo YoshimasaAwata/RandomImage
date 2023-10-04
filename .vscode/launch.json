@@ -16,7 +16,7 @@
       "name": "Python: エントリーポイント",
       "type": "python",
       "request": "launch",
-      "program": "random_image.py",
+      "program": "scripts/random_image.py",
       "console": "integratedTerminal",
       "justMyCode": true
     },

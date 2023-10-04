@@ -1,5 +1,5 @@
 from PIL import Image
-from noise_image import NoiseImage, ColorType
+from rdmimg.noise_image import NoiseImage, ColorType
 import numpy as np
 
 

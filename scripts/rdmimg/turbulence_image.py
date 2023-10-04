@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from noise_image import ColorType, NoiseImage
+from rdmimg.noise_image import ColorType, NoiseImage
 from PIL import Image
 
 

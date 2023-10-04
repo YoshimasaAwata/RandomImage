@@ -1,10 +1,11 @@
 from enum import Enum, auto
 import gradio as gr
 from PIL import Image
-from noise_image import NoiseImage, ColorType
-from smooth_noise_image import SmoothNoiseImage
-from tile_image import TileImage
-from turbulence_image import TurbulenceImage
+
+from rdmimg.noise_image import NoiseImage
+from rdmimg.smooth_noise_image import SmoothNoiseImage
+from rdmimg.tile_image import TileImage
+from rdmimg.turbulence_image import TurbulenceImage
 
 
 class ImageType(Enum):
@@ -16,7 +17,7 @@ class ImageType(Enum):
 
 
 # 以下、コンポーネントの配置。
-with gr.Blocks(css="random_image.css") as random_image:
+with gr.Blocks(css="random.random_image.css") as random_image:
     gr.Markdown("# ランダム画像を生成")
     image_sta = gr.State(ImageType.SMOOTH)
     with gr.Row():

@@ -1,6 +1,6 @@
 import numpy as np
 from enum import Enum, auto
-from noise_image import ColorType, NoiseImage
+from rdmimg.noise_image import ColorType, NoiseImage
 from PIL import Image, ImageDraw, ImageColor
 
 
@@ -103,7 +103,7 @@ class TileImage(NoiseImage):
             Image.Image: ノイズ画像。
         """
 
-        image = Image.new("RGB", (self.width, self.height), self.background)
+        image = Image.new("RGB", (self.width, self.height), self.background)  # type: ignore
         brush = ImageDraw.Draw(image)
         draw_func = (
             self._draw_square
@@ -135,7 +135,7 @@ class TileImage(NoiseImage):
         x1 = x0 + square_size
         y1 = y0 + square_size
         fg_color = tuple(np.random.randint(0, 255, 3).tolist())
-        brush.rectangle((x0, y0, x1, y1), fill=fg_color)
+        brush.rectangle((x0, y0, x1, y1), fill=fg_color)  # type: ignore
 
     def _draw_rectangle(self, brush: ImageDraw.ImageDraw):
         """1つのランダムな長方形を描画。
@@ -151,7 +151,7 @@ class TileImage(NoiseImage):
         x1 = x0 + rect_width
         y1 = y0 + rect_height
         fg_color = tuple(np.random.randint(0, 255, 3).tolist())
-        brush.rectangle((x0, y0, x1, y1), fill=fg_color)
+        brush.rectangle((x0, y0, x1, y1), fill=fg_color)  # type: ignore
 
     def _draw_triangle(self, brush: ImageDraw.ImageDraw):
         """1つのランダムな三角形を描画。
@@ -167,7 +167,7 @@ class TileImage(NoiseImage):
         x2 = x0 + np.random.randint(-self.max_tile_size, self.max_tile_size)
         y2 = y0 + np.random.randint(-self.max_tile_size, self.max_tile_size)
         fg_color = tuple(np.random.randint(0, 255, 3).tolist())
-        brush.polygon((x0, y0, x1, y1, x2, y2), fill=fg_color)
+        brush.polygon((x0, y0, x1, y1, x2, y2), fill=fg_color)  # type: ignore
 
     def _draw_circle(self, brush: ImageDraw.ImageDraw):
         """1つのランダムな円形を描画。
@@ -182,7 +182,7 @@ class TileImage(NoiseImage):
         x1 = x0 + circle_radius
         y1 = y0 + circle_radius
         fg_color = tuple(np.random.randint(0, 255, 3).tolist())
-        brush.ellipse((x0, y0, x1, y1), fill=fg_color)
+        brush.ellipse((x0, y0, x1, y1), fill=fg_color)  # type: ignore
 
     def _draw_ellipse(self, brush: ImageDraw.ImageDraw):
         """1つのランダムな楕円形を描画。
@@ -198,7 +198,7 @@ class TileImage(NoiseImage):
         x1 = x0 + circle_width
         y1 = y0 + circle_height
         fg_color = tuple(np.random.randint(0, 255, 3).tolist())
-        brush.ellipse((x0, y0, x1, y1), fill=fg_color)
+        brush.ellipse((x0, y0, x1, y1), fill=fg_color)  # type: ignore
 
     @staticmethod
     def get_shape_type(shape: str) -> Shape:
