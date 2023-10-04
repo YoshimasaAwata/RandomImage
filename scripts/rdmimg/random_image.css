@@ -6,6 +6,6 @@
     border-radius: 0;
 }
 
-.gradio-container {
-  background-color: blue;
+#ex_btn {
+  margin: auto;
 }

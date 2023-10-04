@@ -17,7 +17,7 @@ class ImageType(Enum):
 
 
 # 以下、コンポーネントの配置。
-with gr.Blocks(css="random.random_image.css") as random_image:
+with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
     gr.Markdown("# ランダム画像を生成")
     image_sta = gr.State(ImageType.SMOOTH)
     with gr.Row():
@@ -58,12 +58,27 @@ with gr.Blocks(css="random.random_image.css") as random_image:
                 background_pck = gr.ColorPicker(
                     value="#FFFFFF", label="Background", interactive=True
                 )
-            image_width_sld = gr.Slider(
-                minimum=128, maximum=8192, value=512, step=32, label="Width"
-            )
-            image_height_sld = gr.Slider(
-                minimum=128, maximum=8192, value=512, step=32, label="Height"
-            )
+            with gr.Row():
+                with gr.Column(scale=8):
+                    image_width_sld = gr.Slider(
+                        minimum=128, maximum=8192, value=512, step=32, label="Width"
+                    )
+                    image_height_sld = gr.Slider(
+                        minimum=128, maximum=8192, value=512, step=32, label="Height"
+                    )
+                exchange_btn = gr.Button(
+                    value="⇧⇩",
+                    scale=1,
+                    size="sm",
+                    min_width=32,
+                    elem_id="ex_btn",
+                )
+            with gr.Row():
+                size_512_btn = gr.Button(value="512x512", size="sm", min_width=64)
+                size_768_btn = gr.Button(value="768x768", size="sm", min_width=64)
+                size_1024_btn = gr.Button(value="1024x1024", size="sm", min_width=64)
+                size_1152_btn = gr.Button(value="1152x896", size="sm", min_width=64)
+                size_1344_btn = gr.Button(value="1344x768", size="sm", min_width=64)
             image_color_rdo = gr.Radio(["RGB", "GRAYSCALE"], value="RGB", label="Color")
             rand_seed_num = gr.Number(
                 value=-1,
@@ -122,6 +137,55 @@ with gr.Blocks(css="random.random_image.css") as random_image:
         change_image_size,
         inputs=[superposition_sld, image_width_sld, image_height_sld],
         outputs=superposition_sld,
+    )
+
+    exchange_btn.click(
+        lambda width, height: (
+            gr.Slider.update(value=height),
+            gr.Slider.update(value=width),
+        ),
+        inputs=[image_width_sld, image_height_sld],
+        outputs=[image_width_sld, image_height_sld],
+    )
+
+    size_512_btn.click(
+        lambda: (
+            gr.Slider.update(value=512),
+            gr.Slider.update(value=512),
+        ),
+        outputs=[image_width_sld, image_height_sld],
+    )
+
+    size_768_btn.click(
+        lambda: (
+            gr.Slider.update(value=768),
+            gr.Slider.update(value=768),
+        ),
+        outputs=[image_width_sld, image_height_sld],
+    )
+
+    size_1024_btn.click(
+        lambda: (
+            gr.Slider.update(value=1024),
+            gr.Slider.update(value=1024),
+        ),
+        outputs=[image_width_sld, image_height_sld],
+    )
+
+    size_1152_btn.click(
+        lambda: (
+            gr.Slider.update(value=1152),
+            gr.Slider.update(value=896),
+        ),
+        outputs=[image_width_sld, image_height_sld],
+    )
+
+    size_1344_btn.click(
+        lambda: (
+            gr.Slider.update(value=1344),
+            gr.Slider.update(value=768),
+        ),
+        outputs=[image_width_sld, image_height_sld],
     )
 
     def create_image(
