@@ -18,7 +18,7 @@ class ImageType(Enum):
 
 # 以下、コンポーネントの配置。
 with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
-    gr.Markdown("# ランダム画像を生成")
+    gr.Markdown("# Create random noise image")
     image_sta = gr.State(ImageType.SMOOTH)
     with gr.Row():
         with gr.Column():
@@ -72,13 +72,39 @@ with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
                     size="sm",
                     min_width=32,
                     elem_id="ex_btn",
+                    elem_classes="btn",
                 )
             with gr.Row():
-                size_512_btn = gr.Button(value="512x512", size="sm", min_width=64)
-                size_768_btn = gr.Button(value="768x768", size="sm", min_width=64)
-                size_1024_btn = gr.Button(value="1024x1024", size="sm", min_width=64)
-                size_1152_btn = gr.Button(value="1152x896", size="sm", min_width=64)
-                size_1344_btn = gr.Button(value="1344x768", size="sm", min_width=64)
+                size_512_btn = gr.Button(
+                    value="512x512",
+                    size="sm",
+                    min_width=64,
+                    elem_classes=["btn", "size_btn"],
+                )
+                size_768_btn = gr.Button(
+                    value="768x768",
+                    size="sm",
+                    min_width=64,
+                    elem_classes=["btn", "size_btn"],
+                )
+                size_1024_btn = gr.Button(
+                    value="1024x1024",
+                    size="sm",
+                    min_width=64,
+                    elem_classes=["btn", "size_btn"],
+                )
+                size_1152_btn = gr.Button(
+                    value="1152x896",
+                    size="sm",
+                    min_width=64,
+                    elem_classes=["btn", "size_btn"],
+                )
+                size_1344_btn = gr.Button(
+                    value="1344x768",
+                    size="sm",
+                    min_width=64,
+                    elem_classes=["btn", "size_btn"],
+                )
             image_color_rdo = gr.Radio(["RGB", "GRAYSCALE"], value="RGB", label="Color")
             rand_seed_num = gr.Number(
                 value=-1,
@@ -96,7 +122,7 @@ with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
                 elem_id="img_box",
             )
             with gr.Row():
-                create_btn = gr.Button(value="Create image")
+                create_btn = gr.Button(value="Create image", variant="primary")
                 clear_btn = gr.Button(value="Clear", interactive=False)
             with gr.Row():
                 used_seed_num = gr.Number(

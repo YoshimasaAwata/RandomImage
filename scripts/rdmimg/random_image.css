@@ -9,3 +9,32 @@
 #ex_btn {
   margin: auto;
 }
+
+.btn:hover {
+  position: relative;
+}
+
+.btn:hover::after {
+  position: absolute;
+  left: 30px;
+  top: 32px;
+  z-index: 1;
+
+  font-weight: normal;
+  color: black;
+  white-space: nowrap;
+
+  background-color: lightgray;
+  padding: 3px;
+  border: 1px silver solid;
+  border-radius: 3px;
+  box-shadow: 1px 1px 3px silver;
+}
+
+#ex_btn:hover::after {
+  content: "Swap width and height";
+}
+
+.size_btn:hover::after {
+  content: "Set width and height"
+}
