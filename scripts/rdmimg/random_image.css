@@ -43,6 +43,14 @@
   margin: auto;
 }
 
+#seed_clear_btn:hover::after {
+  content: "Set random seed automatically";
+}
+
 #seed_recycle_btn {
   margin: auto;
+}
+
+#seed_recycle_btn:hover::after {
+  content: "Copy random seed";
 }

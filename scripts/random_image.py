@@ -122,6 +122,7 @@ with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
                     min_width=32,
                     scale=1,
                     elem_id="seed_clear_btn",
+                    elem_classes="btn",
                 )
                 seed_recycle_btn = gr.Button(
                     value="",
@@ -130,6 +131,7 @@ with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
                     min_width=32,
                     scale=1,
                     elem_id="seed_recycle_btn",
+                    elem_classes="btn",
                 )
         with gr.Column():
             output_img = gr.Image(
