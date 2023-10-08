@@ -106,14 +106,31 @@ with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
                     elem_classes=["btn", "size_btn"],
                 )
             image_color_rdo = gr.Radio(["RGB", "GRAYSCALE"], value="RGB", label="Color")
-            rand_seed_num = gr.Number(
-                value=-1,
-                label="Seed (-1 or 0～2147483647)",
-                precision=0,
-                minimum=-1,
-                maximum=2147483647,
-                step=1,
-            )
+            with gr.Row():
+                rand_seed_num = gr.Number(
+                    value=-1,
+                    label="Seed (-1 or 0～2147483647)",
+                    precision=0,
+                    minimum=-1,
+                    maximum=2147483647,
+                    step=1,
+                    scale=12,
+                )
+                seed_clear_btn = gr.Button(
+                    value="",
+                    icon="scripts/images/dice.png",
+                    min_width=32,
+                    scale=1,
+                    elem_id="seed_clear_btn",
+                )
+                seed_recycle_btn = gr.Button(
+                    value="",
+                    icon="scripts/images/recycle.png",
+                    interactive=False,
+                    min_width=32,
+                    scale=1,
+                    elem_id="seed_recycle_btn",
+                )
         with gr.Column():
             output_img = gr.Image(
                 type="pil",
@@ -126,7 +143,7 @@ with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
                 clear_btn = gr.Button(value="Clear", interactive=False)
             with gr.Row():
                 used_seed_num = gr.Number(
-                    label="Seed actually used", interactive=False, scale=2
+                    value=-1, label="Seed actually used", interactive=False, scale=2
                 )
 
     # 以下、イベントハンドラーとイベント。
@@ -214,6 +231,14 @@ with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
         outputs=[image_width_sld, image_height_sld],
     )
 
+    seed_clear_btn.click(lambda: (gr.Number.update(value=-1)), outputs=rand_seed_num)
+
+    seed_recycle_btn.click(
+        lambda seed: (gr.Number.update(value=seed)),
+        inputs=used_seed_num,
+        outputs=rand_seed_num,
+    )
+
     def create_image(
         type: ImageType,
         width: int,
@@ -255,7 +280,7 @@ with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
         if type == ImageType.TILE:
             shape_type = TileImage.get_shape_type(shape)
             creator = TileImage(
-                width, height, color_type, seed, shape_type, max_size, num, b_color
+                width, height, color_type, seed, shape_type, max_size, num, b_color  # type: ignore
             )
         elif type == ImageType.TURBULENCE:
             resample = NoiseImage.get_resample_type(resample_t)
@@ -296,6 +321,16 @@ with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
             gr.Button.update(interactive=False),
         ),
         outputs=[used_seed_num, output_img, clear_btn],
+    )
+
+    used_seed_num.change(
+        lambda seed: (
+            gr.Button.update(interactive=False)
+            if seed == -1
+            else gr.Button.update(interactive=True)
+        ),
+        inputs=used_seed_num,
+        outputs=seed_recycle_btn,
     )
 
 if __name__ == "__main__":

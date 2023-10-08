@@ -38,3 +38,11 @@
 .size_btn:hover::after {
   content: "Set width and height"
 }
+
+#seed_clear_btn {
+  margin: auto;
+}
+
+#seed_recycle_btn {
+  margin: auto;
+}
