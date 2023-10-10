@@ -53,7 +53,11 @@ with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
                     minimum=4, maximum=64, value=32, step=4, label="Max tile size"
                 )
                 tile_num = gr.Number(
-                    value=10000, label="Tile num (1～)", precision=0, minimum=1
+                    value=10000,
+                    label="Tile num (1～512000)",
+                    precision=0,
+                    minimum=1,
+                    maximum=512000,
                 )
                 background_pck = gr.ColorPicker(
                     value="#FFFFFF", label="Background", interactive=True
