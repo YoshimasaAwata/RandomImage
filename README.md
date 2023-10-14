@@ -68,6 +68,19 @@ python scripts\random_image.py
 Running on local URL:  http://127.0.0.1:7860
 ```
 
+### Stable Diffusion Web UIへのインストール ###
+
+**Stable Diffusion Web UI**の拡張機能として使用する事ができます。
+
+1. **Stable Diffusion Web UI**を起動し、"Extensions"タブをクリックします。
+1. "Install from URL"タブをクリックします。
+1. "URL for extension's git repository"に"https\://github.com/YoshimasaAwata/RandomImage.git"と記入し"Install"ボタンをクリックします。
+1. "Installed"タブをクリックし、"Apply and restart UI"ボタンをクリックします。
+
+![Stable Diffusion Web UIへのインストール](images/install.png)
+
+"RandomImage"のタブが表示されます。
+
 ### 各パラメーターについて ###
 
 #### 共通項目 ####
@@ -139,7 +152,7 @@ Running on local URL:  http://127.0.0.1:7860
 
 ##### Create imageボタン #####
 
-クリックすることで、パラメーターに従ってランダムなノイズ画像を生成します。
+クリックすることで、パラメーターにしたがってランダムなノイズ画像を生成します。
 
 ##### Clearボタン #####
 
@@ -238,3 +251,9 @@ Running on local URL:  http://127.0.0.1:7860
 色の部分をクリックするとカラーピッカーが表示されますので、色を選択します。
 
 ## リリースノート ##
+
+1.0.0: 最初のリリース。
+
+## ToDo ##
+
+- **Stable Diffusion Web UI**におけるCSS適用。
