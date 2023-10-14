@@ -7,11 +7,16 @@ if __name__ == "__main__":
     from rdmimg.smooth_noise_image import SmoothNoiseImage
     from rdmimg.tile_image import TileImage
     from rdmimg.turbulence_image import TurbulenceImage
+
+    base_path = ""
 else:
     from scripts.rdmimg.noise_image import NoiseImage
     from scripts.rdmimg.smooth_noise_image import SmoothNoiseImage
     from scripts.rdmimg.tile_image import TileImage
     from scripts.rdmimg.turbulence_image import TurbulenceImage
+    import modules.scripts as scripts
+
+    base_path = scripts.basedir() + "/"
 
 
 class ImageType(Enum):
@@ -25,7 +30,7 @@ class ImageType(Enum):
 # 以下、コンポーネントの配置。
 def on_ui_tabs():
     """コンポーネントの配置"""
-    with gr.Blocks(css="scripts/rdmimg/random_image.css") as random_image:
+    with gr.Blocks(css=base_path + "scripts/rdmimg/random_image.css") as random_image:
         gr.Markdown("# Create random noise image")
         image_sta = gr.State(ImageType.SMOOTH)
         with gr.Row():
@@ -138,7 +143,7 @@ def on_ui_tabs():
                     )
                     seed_clear_btn = gr.Button(
                         value="",
-                        icon="scripts/images/dice.png",
+                        icon=base_path + "scripts/images/dice.png",
                         min_width=32,
                         scale=1,
                         elem_id="seed_clear_btn",
@@ -146,7 +151,7 @@ def on_ui_tabs():
                     )
                     seed_recycle_btn = gr.Button(
                         value="",
-                        icon="scripts/images/recycle.png",
+                        icon=base_path + "scripts/images/recycle.png",
                         interactive=False,
                         min_width=32,
                         scale=1,
