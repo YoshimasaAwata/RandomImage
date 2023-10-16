@@ -31,12 +31,32 @@
 git clone https://github.com/YoshimasaAwata/RandomImage.git
 ```
 
-### 設定 ###
+### バッチファイルによる起動 ###
+
+**Python**の仮想環境の設定や切り替え、必要なモジュールのダウンロード、起動を自動的に行うようにバッチファイルを用意しました。
+
+"start_random_image.bat"ファイルを実行すると自動的に起動します。
+
+以下のように表示されますので、指定のURLにブラウザでアクセスすればGUIが表示されます。
+
+``` shell
+Running on local URL:  http://127.0.0.1:7860
+```
+
+終了する場合には、コマンドプロンプトで"Ctrl-C"を押してください。  
+終了後は仮想環境に入った状態ですので、"deactivate"コマンドで仮想環境を終了するか、"exit"コマンドでコマンドプロンプト自体を終了してください。
+
+### 手動による設定と起動 ###
+
+"start_random_image.bat"バッチファイルを使用せずに**Python**の仮想環境を設定し起動まで行うには以下のようにします。
+
+#### 設定 ####
 
 まず、**Python**の仮想環境を設定し、仮想環境に切り替えます。
 
+"RandomImage"フォルダー内からコマンドプロンプトを起動し、以下のコマンドを実行して仮想環境を作成後、仮想環境に切り替えます。
+
 ``` shell
-cd RandomImage
 python -m venv vnev
 .\venv\Scripts\activate.bat
 ```
@@ -47,7 +67,7 @@ python -m venv vnev
 pip install -r requirements.txt
 ```
 
-### 起動 ###
+#### 起動 ####
 
 起動する前に**Python**の仮想環境に切り替えます。  
 すでに仮想環境になっている場合には必要ありません。
@@ -62,7 +82,7 @@ pip install -r requirements.txt
 python scripts\random_image.py
 ```
 
-以下のように表示されますので、指定のURLにブラウザでアクセスすれば、GUIが表示されます。
+以下のように表示されますので、指定のURLにブラウザでアクセスすればGUIが表示されます。
 
 ``` shell
 Running on local URL:  http://127.0.0.1:7860
@@ -70,12 +90,14 @@ Running on local URL:  http://127.0.0.1:7860
 
 ### Stable Diffusion Web UIへのインストール ###
 
-**Stable Diffusion Web UI**の拡張機能として使用する事ができます。
+**Stable Diffusion Web UI**の拡張機能としても使用する事ができます。
+
+**Stable Diffusion Web UI**の拡張機能として使用する場合には、以下のようにします。
 
 1. **Stable Diffusion Web UI**を起動し、"Extensions"タブをクリックします。
-1. "Install from URL"タブをクリックします。
-1. "URL for extension's git repository"に"https\://github.com/YoshimasaAwata/RandomImage.git"と記入し"Install"ボタンをクリックします。
-1. "Installed"タブをクリックし、"Apply and restart UI"ボタンをクリックします。
+2. "Install from URL"タブをクリックします。
+3. "URL for extension's git repository"に"https\://github.com/YoshimasaAwata/RandomImage.git"と記入し"Install"ボタンをクリックします。
+4. "Installed"タブをクリックし、"Apply and restart UI"ボタンをクリックします。
 
 ![Stable Diffusion Web UIへのインストール](images/install.png)
 
