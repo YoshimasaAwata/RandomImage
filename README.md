@@ -274,6 +274,8 @@ Running on local URL:  http://127.0.0.1:7860
 
 ## リリースノート ##
 
+1.1.0: Stable Diffusion WebUI (AUTOMATIC1111)の拡張として使用するとエラーが発生するのを修正。
+
 1.0.0: 最初のリリース。
 
 ## ToDo ##
