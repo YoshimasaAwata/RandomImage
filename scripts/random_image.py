@@ -1,19 +1,19 @@
 from enum import Enum, auto
 import gradio as gr
 from PIL import Image
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "rdmimg"))
+
+from noise_image import NoiseImage
+from smooth_noise_image import SmoothNoiseImage
+from tile_image import TileImage
+from turbulence_image import TurbulenceImage
 
 if __name__ == "__main__":
-    from rdmimg.noise_image import NoiseImage
-    from rdmimg.smooth_noise_image import SmoothNoiseImage
-    from rdmimg.tile_image import TileImage
-    from rdmimg.turbulence_image import TurbulenceImage
-
     base_path = ""
 else:
-    from scripts.rdmimg.noise_image import NoiseImage
-    from scripts.rdmimg.smooth_noise_image import SmoothNoiseImage
-    from scripts.rdmimg.tile_image import TileImage
-    from scripts.rdmimg.turbulence_image import TurbulenceImage
     import modules.scripts as scripts
 
     base_path = scripts.basedir() + "/"

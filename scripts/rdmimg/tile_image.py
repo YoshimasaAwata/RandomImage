@@ -1,6 +1,6 @@
 import numpy as np
 from enum import Enum, auto
-from rdmimg.noise_image import ColorType, NoiseImage
+from noise_image import ColorType, NoiseImage
 from PIL import Image, ImageDraw, ImageColor
 
 
